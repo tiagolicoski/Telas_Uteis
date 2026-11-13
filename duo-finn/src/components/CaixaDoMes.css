@@ -1,0 +1,67 @@
+.span-caixa {
+  grid-column: 1 / -1;
+}
+
+.cash-alert {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-xs);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.cash-hint,
+.cash-ok {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.cash-ok {
+  color: var(--success);
+}
+
+.cash-events {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.cash-events li {
+  display: grid;
+  grid-template-columns: 64px 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.cash-day {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.cash-amount,
+.cash-running {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: right;
+}
+
+.cash-running {
+  min-width: 96px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .cash-events li {
+    grid-template-columns: 56px 1fr auto;
+  }
+
+  .cash-running {
+    display: none;
+  }
+}

@@ -1,0 +1,461 @@
+.planilha {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.planilha.card {
+  padding: 16px;
+  overflow: auto;
+}
+
+.sheet-top {
+  display: grid;
+  grid-template-columns: minmax(200px, 300px) minmax(340px, 520px);
+  gap: 16px;
+  align-items: end;
+  font-size: 13px;
+  margin-bottom: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 720px) {
+  .sheet-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sheet-top-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sheet-field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sheet-money-day,
+.sheet-extra-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sheet-top .sheet-extra-row input {
+  width: auto;
+  flex: 1 1 auto;
+}
+
+.sheet-top .sheet-extra-row .sheet-extra-amount {
+  flex: 0 0 140px;
+  width: 140px;
+}
+
+.sheet-top .sheet-money-day .sheet-salary-amount {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+
+.sheet-top .sheet-money-day input.sheet-payday,
+.sheet-top .sheet-extra-row input.sheet-payday {
+  flex: 0 0 72px;
+  width: 72px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .sheet-extra-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sheet-top .sheet-extra-row .sheet-extra-amount {
+    flex: none;
+    width: 100%;
+  }
+}
+
+.sheet-top input,
+.sheet-top .sheet-money-input,
+.sheet-top .sheet-text-input,
+.sheet-blocks-add input {
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xs);
+  background: var(--bg-elevated);
+  color: var(--text);
+  min-width: 0;
+  width: 100%;
+}
+
+.sheet-top input:focus,
+.sheet-top .sheet-money-input:focus,
+.sheet-top .sheet-text-input:focus,
+.sheet-blocks-add input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.sheet-blocks-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.sheet-blocks-add {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.sheet-blocks-add input {
+  flex: 1;
+  width: auto;
+}
+
+.sheet-toolbar-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.sheet-toolbar-btn.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.sheet-blocks-restore {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.sheet-restore-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.sheet-block-actions {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+  justify-content: flex-end;
+}
+
+.sheet-block-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  background: var(--surface-muted);
+  color: var(--text-muted);
+}
+
+.sheet-block-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.sheet-block-btn.overview.on {
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.sheet-block-btn.danger:hover:not(:disabled) {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.sheet-title-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.sheet-title-input:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: -2px;
+}
+
+.sheet-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sheet-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.sheet-group.in-saldo .sheet-group-label {
+  color: var(--accent-hover);
+}
+
+.sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.sheet-table-wrap {
+  width: 100%;
+  max-width: 360px;
+  min-width: 0;
+  animation: sheet-rise 0.28s ease;
+}
+
+@keyframes sheet-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+  background: #fff;
+  box-shadow: 0 0 0 1px #c9daf8;
+}
+
+.sheet-table thead th {
+  background: #6d9eeb;
+  color: #fff;
+  font-weight: 700;
+  padding: 6px 8px;
+  text-align: center;
+  border: 1px solid #5a8fd9;
+}
+
+.sheet-subhead th {
+  background: #c9daf8 !important;
+  color: #1e293b !important;
+  font-size: 11px;
+}
+
+.sheet-table td {
+  border: 1px solid #d0d7e5;
+  padding: 0;
+  vertical-align: middle;
+}
+
+.sheet-text-input,
+.sheet-money-input,
+.sheet-day-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  padding: 5px 6px;
+  min-width: 0;
+}
+
+.sheet-text-input {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-table .sheet-text-input:focus,
+.sheet-table .sheet-money-input:focus,
+.sheet-table .sheet-day-input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+  background: #fefce8;
+  box-shadow: none;
+}
+
+.sheet-dia {
+  width: 44px;
+}
+
+.sheet-day-input {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.sheet-day-input::placeholder {
+  color: var(--text-light);
+}
+
+.sheet-valor {
+  position: relative;
+  width: 96px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sheet-money-input {
+  text-align: right;
+  padding-right: 22px;
+}
+
+.sheet-remove {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+  opacity: 0;
+  border-radius: 4px;
+}
+
+.sheet-valor:hover .sheet-remove,
+.sheet-remove:focus {
+  opacity: 1;
+}
+
+.sheet-remove:hover {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.sheet-total-row td {
+  background: #e8f0fe;
+  font-weight: 700;
+  padding: 6px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet-total-row td:last-child {
+  text-align: right;
+}
+
+.sheet-add-line {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--primary);
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+.sheet-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 2px solid var(--border);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet-summary strong.positive {
+  color: var(--success);
+}
+
+.sheet-summary strong.negative {
+  color: var(--danger);
+}
+
+.sheet-footer-muted {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.sheet-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.sheet-tab {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px 8px 0 0;
+  color: var(--text-muted);
+  background: #f1f5f9;
+  white-space: nowrap;
+}
+
+.sheet-tab.active {
+  background: #6d9eeb;
+  color: #fff;
+}
+
+.sheet-tab.add {
+  background: transparent;
+  border: 1px dashed var(--text-light);
+  color: var(--accent-hover);
+}
+
+.sheet-tab.add:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.sheet-tab.remove {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: var(--danger);
+}
+
+.sheet-tab.remove:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+body.theme-dark .sheet-table {
+  background: #1e293b;
+}
+
+body.theme-dark .sheet-text-input,
+body.theme-dark .sheet-money-input,
+body.theme-dark .sheet-day-input {
+  color: var(--text);
+}
+
+body.theme-dark .sheet-table td {
+  border-color: #334155;
+}

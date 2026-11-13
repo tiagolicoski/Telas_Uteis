@@ -1,0 +1,256 @@
+.app-shell {
+  --shell-sidebar: var(--sidebar-width);
+  min-height: 100vh;
+  position: relative;
+}
+
+.app-shell:has(.sidebar.collapsed) {
+  --shell-sidebar: var(--sidebar-width-collapsed);
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+.main-wrap {
+  margin-left: var(--shell-sidebar);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.22s ease;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 20px 24px;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ——— Dashboard bento grid ——— */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  align-content: start;
+  animation: fade-in 0.35s ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.span-saldo {
+  grid-column: 1 / span 8;
+}
+
+.col-right {
+  grid-column: 9 / span 4;
+  grid-row: 1 / span 3;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.span-divisao {
+  grid-column: 1 / span 6;
+}
+
+.span-cartoes {
+  grid-column: 7 / span 6;
+}
+
+.dashboard-grid .detalhes-planilha,
+.dashboard-grid > :not(.span-saldo):not(.col-right):not(.span-divisao):not(.span-cartoes) {
+  grid-column: 1 / -1;
+}
+
+.cards-page-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  animation: fade-in 0.35s ease;
+}
+
+.cards-page-grid .span-cartoes {
+  grid-column: 1 / span 7;
+}
+
+.cards-page-aside {
+  grid-column: 8 / span 5;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cards-empty-hint {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.cards-empty-hint strong {
+  color: var(--accent);
+}
+
+.cashflow-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  animation: fade-in 0.35s ease;
+}
+
+.cashflow-wrap .planilha {
+  flex: 1;
+  min-height: calc(100vh - var(--header-height) - 48px);
+}
+
+.placeholder-wrap {
+  animation: fade-in 0.35s ease;
+}
+
+/* ——— Shared card surface ——— */
+.card {
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.card-value {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.card-value-sm {
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.badge-up {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--success);
+  background: var(--success-soft);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.positive {
+  color: var(--success);
+}
+
+.negative {
+  color: var(--danger);
+}
+
+.dashboard-slot-empty {
+  min-height: 80px;
+  opacity: 0.35;
+  border-style: dashed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+/* ——— Breakpoints ——— */
+@media (max-width: 1200px) {
+  .span-saldo {
+    grid-column: 1 / -1;
+  }
+
+  .col-right {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .span-divisao,
+  .span-cartoes {
+    grid-column: span 6;
+  }
+
+  .cards-page-grid .span-cartoes,
+  .cards-page-aside {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell:has(.sidebar.collapsed) {
+    --shell-sidebar: 0px;
+  }
+
+  .app-shell {
+    --shell-sidebar: 0px;
+  }
+
+  .main-wrap {
+    margin-left: 0;
+  }
+
+  .main-content {
+    padding: 0 12px 20px;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(15, 23, 42, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .sidebar-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .dashboard-grid,
+  .col-right {
+    grid-template-columns: 1fr;
+  }
+
+  .span-saldo,
+  .span-divisao,
+  .span-cartoes,
+  .col-right {
+    grid-column: 1 / -1;
+  }
+}

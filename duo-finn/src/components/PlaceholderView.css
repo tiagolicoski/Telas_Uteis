@@ -1,0 +1,24 @@
+.placeholder-view {
+  padding: 48px 32px;
+  text-align: center;
+  flex: 1;
+}
+
+.placeholder-view h2 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.placeholder-view p {
+  color: var(--text-muted);
+  font-size: 14px;
+  max-width: 420px;
+  margin: 0 auto 20px;
+  line-height: 1.5;
+}
+
+.btn-link {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 13px;
+}

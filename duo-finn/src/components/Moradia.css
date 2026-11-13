@@ -1,0 +1,71 @@
+.moradia-card {
+  flex: 1;
+}
+
+.moradia-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.moradia-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 2px 0 6px;
+}
+
+.house-illus {
+  font-size: 40px;
+}
+
+.salary-bar-wrap {
+  margin-bottom: 16px;
+}
+
+.salary-bar {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.salary-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #22c55e);
+  border-radius: 999px;
+}
+
+.salary-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.moradia-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.moradia-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+}
+
+.mi-icon {
+  font-size: 18px;
+}
+
+.mi-label {
+  color: var(--text-muted);
+}
+
+.mi-value {
+  font-weight: 600;
+  font-size: 12px;
+}

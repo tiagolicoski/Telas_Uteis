@@ -1,0 +1,90 @@
+.contas-card {
+  flex: 1;
+}
+
+.contas-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.day-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.calendar-illus {
+  font-size: 36px;
+}
+
+.day-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.day-chip {
+  min-width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.day-chip.active {
+  background: var(--primary);
+  color: white;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  flex-shrink: 0;
+}
+
+.check.checked {
+  background: var(--success);
+  border-color: var(--success);
+  position: relative;
+}
+
+.check.checked::after {
+  content: '✓';
+  color: white;
+  font-size: 11px;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.task-name.done {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+
+.task-value {
+  font-weight: 600;
+}

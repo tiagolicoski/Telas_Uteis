@@ -1,0 +1,78 @@
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.confirm-card {
+  width: min(100%, 400px);
+  margin: 0;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-lg);
+}
+
+.confirm-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+
+.confirm-message {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin-bottom: 22px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.confirm-btn {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  transition:
+    background 0.15s,
+    filter 0.15s;
+}
+
+.confirm-btn.secondary {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.confirm-btn.secondary:hover {
+  background: var(--accent-soft);
+}
+
+.confirm-btn.primary {
+  background: var(--accent);
+  color: white;
+}
+
+.confirm-btn.primary.danger {
+  background: var(--danger);
+}
+
+.confirm-btn.primary:hover {
+  background: var(--accent-hover);
+}
+
+.confirm-btn.primary.danger:hover {
+  background: #dc2626;
+}
