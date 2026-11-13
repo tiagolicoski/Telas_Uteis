@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useFinance } from '../../context/FinanceContext'
 import { ConfirmDialog } from './ConfirmDialog'
 import {
@@ -7,6 +7,7 @@ import {
   monthCoreBalance,
   monthCoreExpensesTotal,
   monthDetailExpensesTotal,
+  monthsByYear,
 } from '../../utils/sheet'
 import { MoneyInput } from './MoneyInput'
 import { SheetDayInput } from './SheetDayInput'
@@ -18,6 +19,9 @@ import './Planilha.css'
 export function PlanilhaView() {
   const { state, formatBRL, dispatch } = useFinance()
   const [removeMonthOpen, setRemoveMonthOpen] = useState(false)
+  const monthGroups = monthsByYear(state.sheetMonths)
+  const orderedMonths = monthGroups.flatMap((group) => group.months)
+  const monthIndex = orderedMonths.findIndex((month) => month.key === state.activeSheetMonthKey)
   const sheet = getSheetMonth(state.sheetMonths, state.activeSheetMonthKey)
 
   if (!sheet) {
@@ -211,7 +215,49 @@ export function PlanilhaView() {
         </p>
       </div>
 
-      <div className="sheet-tabs" role="tablist">
+      <div className="sheet-monthbar">
+        <div className="sheet-monthbar-nav">
+          <button
+            type="button"
+            className="sheet-month-step"
+            aria-label="Mês anterior da lista"
+            disabled={monthIndex <= 0}
+            onClick={() => {
+              const previous = orderedMonths[monthIndex - 1]
+              if (previous) dispatch({ type: 'SET_SHEET_MONTH', key: previous.key })
+            }}
+          >
+            <ChevronLeft size={16} strokeWidth={1.75} />
+          </button>
+          <select
+            className="sheet-month-select"
+            aria-label="Mês da planilha"
+            value={sheet.key}
+            onChange={(event) => dispatch({ type: 'SET_SHEET_MONTH', key: event.target.value })}
+          >
+            {monthGroups.map((group) => (
+              <optgroup key={group.year} label={group.year}>
+                {group.months.map((month) => (
+                  <option key={month.key} value={month.key}>
+                    {month.label}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="sheet-month-step"
+            aria-label="Próximo mês da lista"
+            disabled={monthIndex < 0 || monthIndex >= orderedMonths.length - 1}
+            onClick={() => {
+              const next = orderedMonths[monthIndex + 1]
+              if (next) dispatch({ type: 'SET_SHEET_MONTH', key: next.key })
+            }}
+          >
+            <ChevronRight size={16} strokeWidth={1.75} />
+          </button>
+        </div>
         <button
           type="button"
           className="sheet-tab add"
@@ -220,21 +266,6 @@ export function PlanilhaView() {
         >
           + Mês anterior
         </button>
-        {state.sheetMonths
-          .slice()
-          .sort((a, b) => a.key.localeCompare(b.key))
-          .map((m) => (
-            <button
-              key={m.key}
-              type="button"
-              role="tab"
-              aria-selected={m.key === state.activeSheetMonthKey}
-              className={`sheet-tab ${m.key === state.activeSheetMonthKey ? 'active' : ''}`}
-              onClick={() => dispatch({ type: 'SET_SHEET_MONTH', key: m.key })}
-            >
-              {m.label}
-            </button>
-          ))}
         <button
           type="button"
           className="sheet-tab add"

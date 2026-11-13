@@ -37,32 +37,11 @@ export function Header({ onMenuClick }: HeaderProps) {
     }
   }, [menuOpen])
   const title = NAV_LABELS[state.nav]
-  const notes: string[] = []
-  if (derived.notifications > 0) {
-    const bills = derived.payables.filter((item) => !item.paid).length
-    if (bills > 0) notes.push(`${bills} conta(s) não paga(s)`)
-  }
-  if (derived.balanceAlert) {
-    notes.push('A sobra do mês diminuiu em relação ao mês anterior')
-  }
-  if (
-    derived.cashTiming &&
-    derived.cashTiming.shortfall > 0 &&
-    !derived.cashTiming.missingSalaryDay
-  ) {
-    notes.push('Falta dinheiro em alguma data antes das contas')
-  }
-  const bellLabel = notes.length > 0 ? notes.join('. ') : 'Nenhuma pendência'
-  const unpaid = derived.payables
-    .filter((item) => !item.paid)
-    .sort((a, b) => a.dueDay - b.dueDay || a.name.localeCompare(b.name))
-  const timingAlert =
-    derived.cashTiming &&
-    derived.cashTiming.shortfall > 0 &&
-    derived.cashTiming.shortfallDay &&
-    !derived.cashTiming.missingSalaryDay
-      ? derived.cashTiming
-      : null
+  const unpaid = derived.pendingBills
+  const bellLabel =
+    unpaid.length > 0
+      ? `${unpaid.length} conta(s) não paga(s) até o mês atual`
+      : 'Nenhuma conta pendente'
 
   return (
     <header className="top-header">
@@ -147,33 +126,22 @@ export function Header({ onMenuClick }: HeaderProps) {
           {notifsOpen && (
             <div className="notif-panel" role="dialog" aria-label="Notificações">
               <p className="notif-title">Notificações</p>
-              {derived.balanceAlert && (
-                <p className="notif-alert">
-                  A sobra deste mês está {formatBRL(derived.balanceAlert.drop)} menor
-                  que em {derived.balanceAlert.previousLabel}.
-                </p>
-              )}
-              {timingAlert && (
-                <p className="notif-alert">
-                  No dia {timingAlert.shortfallDay} faltam{' '}
-                  {formatBRL(timingAlert.shortfall)} para pagar as contas na data.
-                </p>
-              )}
               {unpaid.length > 0 ? (
                 <ul className="notif-list">
                   {unpaid.map((item) => (
                     <li key={item.id} className="notif-item">
                       <span>
                         <strong>{item.name}</strong>
-                        <span className="notif-meta">Dia {item.dueDay}</span>
+                        <span className="notif-meta">
+                          {item.monthLabel} · Dia {item.dueDay}
+                        </span>
                       </span>
                       <span className="notif-amount">{formatBRL(item.amount)}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                !derived.balanceAlert &&
-                !timingAlert && <p className="notif-empty">Nenhuma pendência.</p>
+                <p className="notif-empty">Nenhuma conta pendente até este mês.</p>
               )}
             </div>
           )}

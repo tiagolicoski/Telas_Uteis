@@ -32,10 +32,28 @@ export function CaixaDoMes() {
         </p>
       )}
 
+      {cashTiming && cashTiming.allSettled && missingParts.length === 0 && (
+        <p className="cash-ok">As contas deste mês já estão marcadas como pagas.</p>
+      )}
+
       {cashTiming &&
+        !cashTiming.allSettled &&
         !cashTiming.missingSalaryDay &&
         cashTiming.shortfall > 0 &&
-        cashTiming.shortfallDay && (
+        cashTiming.shortfallDay === 0 && (
+        <p className="cash-alert" role="status">
+          O caixa já abre faltando{' '}
+          <strong>{formatBRL(cashTiming.shortfall)}</strong>, por causa do saldo
+          que veio dos meses anteriores.
+        </p>
+      )}
+
+      {cashTiming &&
+        !cashTiming.allSettled &&
+        !cashTiming.missingSalaryDay &&
+        cashTiming.shortfall > 0 &&
+        cashTiming.shortfallDay != null &&
+        cashTiming.shortfallDay > 0 && (
         <p className="cash-alert" role="status">
           No dia {cashTiming.shortfallDay} faltam{' '}
           <strong>{formatBRL(cashTiming.shortfall)}</strong> para pagar as contas
@@ -46,16 +64,19 @@ export function CaixaDoMes() {
       {cashTiming && !cashTiming.missingSalaryDay && cashTiming.events.length > 0 && (
         <ul className="cash-events">
           {cashTiming.events.map((event, index) => (
-            <li key={`${event.day}-${event.kind}-${event.label}-${index}`}>
-              <span className="cash-day">Dia {event.day}</span>
+            <li
+              key={`${event.day}-${event.kind}-${event.label}-${index}`}
+              className={event.paid ? 'cash-paid' : undefined}
+            >
+              <span className="cash-day">{event.day === 0 ? 'Início' : `Dia ${event.day}`}</span>
               <span className={event.kind === 'in' ? 'positive' : undefined}>
-                {event.kind === 'in' ? 'Entra' : 'Sai'} {event.label}
+                {event.paid ? 'Pago' : event.kind === 'in' ? 'Entra' : 'Sai'} {event.label}
               </span>
               <span className="cash-amount">
                 {event.kind === 'in' ? '+' : '−'}
                 {formatBRL(event.amount)}
               </span>
-              <span className={event.balance < 0 ? 'negative' : 'cash-running'}>
+              <span className={event.pressured ? 'cash-running negative' : 'cash-running'}>
                 {formatBRL(event.balance)}
               </span>
             </li>
@@ -71,6 +92,7 @@ export function CaixaDoMes() {
       )}
 
       {cashTiming &&
+        !cashTiming.allSettled &&
         cashTiming.events.length > 0 &&
         cashTiming.shortfall === 0 &&
         missingParts.length === 0 && (

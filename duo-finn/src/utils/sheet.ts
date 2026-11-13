@@ -47,6 +47,18 @@ export function monthBalance(
   return monthCoreBalance(sheet, coreBlockIds)
 }
 
+export function monthsByYear(months: MonthSheet[]): { year: string; months: MonthSheet[] }[] {
+  const sorted = [...months].sort((a, b) => a.key.localeCompare(b.key))
+  const groups: { year: string; months: MonthSheet[] }[] = []
+  for (const month of sorted) {
+    const year = month.key.slice(0, 4)
+    const current = groups[groups.length - 1]
+    if (current?.year === year) current.months.push(month)
+    else groups.push({ year, months: [month] })
+  }
+  return groups
+}
+
 export function getSheetMonth(
   months: MonthSheet[],
   key: string,

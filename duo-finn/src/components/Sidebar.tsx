@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import type { NavId } from '../data/types'
 import { NAV_LABELS, useFinance } from '../context/FinanceContext'
+import { monthsByYear } from '../utils/sheet'
 import './Sidebar.css'
 
 const menuItems: NavId[] = ['overview', 'cashflow', 'reports']
@@ -37,7 +38,7 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
     useFinance()
   const collapsed = state.sidebarCollapsed
 
-  const months = [...state.sheetMonths].sort((a, b) => a.key.localeCompare(b.key))
+  const monthGroups = monthsByYear(state.sheetMonths)
 
   function goNav(id: NavId) {
     setNav(id)
@@ -107,24 +108,25 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
         <ul>{menuItems.map(renderNavItem)}</ul>
 
         <div className="sidebar-months">
-          <p className="nav-section">Mês</p>
-          <ul className="month-list">
-            {months.map((m) => (
-              <li key={m.key}>
-                <button
-                  type="button"
-                  className={`month-chip ${
-                    m.key === state.activeSheetMonthKey ? 'active' : ''
-                  }`}
-                  onClick={() => pickMonth(m.key)}
-                  title={collapsed ? m.label : undefined}
-                >
-                  <span className="month-chip-dot" aria-hidden />
-                  <span className="month-chip-label">{m.label}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <label className="month-field">
+            <span className="nav-section">Mês</span>
+            <select
+              className="month-select"
+              aria-label="Mês da planilha"
+              value={state.activeSheetMonthKey}
+              onChange={(event) => pickMonth(event.target.value)}
+            >
+              {monthGroups.map((group) => (
+                <optgroup key={group.year} label={group.year}>
+                  {group.months.map((month) => (
+                    <option key={month.key} value={month.key}>
+                      {month.label.split('/')[0]}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </label>
         </div>
       </nav>
 

@@ -81,6 +81,7 @@
 .sidebar.collapsed .brand-text,
 .sidebar.collapsed .nav-section,
 .sidebar.collapsed .nav-text,
+.sidebar.collapsed .sidebar-months,
 .sidebar.collapsed .month-chip-label,
 .sidebar.collapsed .profile-label,
 .sidebar.collapsed .chev {
@@ -211,7 +212,30 @@
 }
 
 .sidebar-months {
-  margin-bottom: 4px;
+  margin: 8px 12px 4px;
+}
+
+.month-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.month-field .nav-section {
+  padding: 0;
+}
+
+.month-select {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .month-list {

@@ -22,11 +22,21 @@ import type {
 import {
   payablesForDay,
   uniquePayDays,
-  unpaidCount,
   budgetSegments,
 } from '../utils/calculations'
-import { overviewFromSheet, type DetailBlock } from '../utils/overviewFromSheet'
-import { balanceDrop, buildCashTiming, type BalanceDrop, type CashTiming } from '../utils/cashTiming'
+import {
+  overviewFromSheet,
+  pendingBills,
+  type DetailBlock,
+  type PendingBill,
+} from '../utils/overviewFromSheet'
+import {
+  balanceDrop,
+  buildCashTiming,
+  carriedFromPreviousMonths,
+  type BalanceDrop,
+  type CashTiming,
+} from '../utils/cashTiming'
 import { getSheetMonth } from '../utils/sheet'
 import { formatBRL } from '../utils/format'
 import { financeReducer, type FinanceAction } from './financeReducer'
@@ -53,6 +63,7 @@ interface FinanceContextValue {
     payablesVisible: ReturnType<typeof payablesForDay>
     payablesDayTotal: number
     notifications: number
+    pendingBills: PendingBill[]
     balanceAlert: BalanceDrop | null
     cashTiming: CashTiming | null
     balance: number
@@ -211,8 +222,15 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     const payablesDayTotal = payablesVisible.reduce((s, p) => s + p.amount, 0)
     const balance = sheetDerived?.balance ?? 0
     const activeSheet = getSheetMonth(state.sheetMonths, state.activeSheetMonthKey)
+    const carried = activeSheet
+      ? carriedFromPreviousMonths(
+          state.sheetMonths,
+          state.activeSheetMonthKey,
+          state.overviewBlockIds,
+        )
+      : null
     const cashTiming = activeSheet
-      ? buildCashTiming(activeSheet, state.overviewBlockIds)
+      ? buildCashTiming(activeSheet, state.overviewBlockIds, carried, state.payablePaid)
       : null
     const balanceAlert = balanceDrop(
       state.sheetMonths,
@@ -220,11 +238,11 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       state.overviewBlockIds,
       balance,
     )
-    const timingAlert =
-      cashTiming != null &&
-      cashTiming.shortfall > 0 &&
-      !cashTiming.missingSalaryDay
-    const attention = (balanceAlert ? 1 : 0) + (timingAlert ? 1 : 0)
+    const openBills = pendingBills(
+      state.sheetMonths,
+      state.payablePaid,
+      state.overviewBlockIds,
+    )
     const budget = budgetSegments(sheetDerived?.budgetLines ?? [])
     const cardsTotal = cards.reduce((s, c) => s + c.amount, 0)
     const moradiaTotal = moradiaItems.reduce((s, m) => s + m.amount, 0)
@@ -242,7 +260,8 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       payDays,
       payablesVisible,
       payablesDayTotal,
-      notifications: unpaidCount(payables) + attention,
+      notifications: openBills.length,
+      pendingBills: openBills,
       balanceAlert,
       cashTiming,
       balance,
@@ -259,7 +278,14 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       showDetalhes: (sheetDerived?.detailBlocks.length ?? 0) > 0,
       coreBlockLabels: sheetDerived?.coreBlockLabels ?? [],
     }
-  }, [sheetDerived, state.selectedPayDay, state.sheetMonths, state.activeSheetMonthKey, state.overviewBlockIds])
+  }, [
+    sheetDerived,
+    state.selectedPayDay,
+    state.sheetMonths,
+    state.activeSheetMonthKey,
+    state.overviewBlockIds,
+    state.payablePaid,
+  ])
 
   useEffect(() => {
     if (derived.payables.length === 0) return

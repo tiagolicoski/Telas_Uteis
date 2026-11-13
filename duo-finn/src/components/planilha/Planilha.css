@@ -433,12 +433,51 @@
   color: var(--text-muted);
 }
 
-.sheet-tabs {
+.sheet-monthbar {
   display: flex;
-  gap: 4px;
-  overflow-x: auto;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
   padding-top: 8px;
   border-top: 1px solid var(--border);
+}
+
+.sheet-monthbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sheet-month-step,
+.sheet-month-select {
+  height: 34px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+
+.sheet-month-step {
+  width: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.sheet-month-step:disabled {
+  opacity: 0.4;
+}
+
+.sheet-month-select {
+  padding: 0 10px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sheet-monthbar .sheet-tab {
+  border-radius: 8px;
 }
 
 .sheet-tab {

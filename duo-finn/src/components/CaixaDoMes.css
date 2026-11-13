@@ -25,16 +25,17 @@
 }
 
 .cash-events {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) 9.5rem 8.75rem;
+  column-gap: 12px;
+  row-gap: 6px;
   margin-top: 12px;
 }
 
 .cash-events li {
   display: grid;
-  grid-template-columns: 64px 1fr auto auto;
-  gap: 10px;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
   align-items: center;
   font-size: 13px;
 }
@@ -49,16 +50,20 @@
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   text-align: right;
+  white-space: nowrap;
 }
 
 .cash-running {
-  min-width: 96px;
+  color: var(--text-muted);
+}
+
+.cash-paid span:nth-child(2) {
   color: var(--text-muted);
 }
 
 @media (max-width: 640px) {
-  .cash-events li {
-    grid-template-columns: 56px 1fr auto;
+  .cash-events {
+    grid-template-columns: 3.5rem minmax(0, 1fr) 8.75rem;
   }
 
   .cash-running {

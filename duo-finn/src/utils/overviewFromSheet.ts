@@ -64,6 +64,40 @@ function payableId(monthKey: string, categoryId: string, lineId: string) {
   return `${monthKey}:${categoryId}:${lineId}`
 }
 
+export function currentMonthKey(date = new Date()): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  return `${date.getFullYear()}-${month}`
+}
+
+export type PendingBill = Payable & { monthKey: string; monthLabel: string }
+
+/** Contas ainda não pagas do mês de hoje e dos meses anteriores. */
+export function pendingBills(
+  months: MonthSheet[],
+  paidMap: Record<string, boolean>,
+  coreBlockIds: string[],
+  today = new Date(),
+): PendingBill[] {
+  const limit = currentMonthKey(today)
+  return months
+    .filter((month) => month.key <= limit)
+    .flatMap((month) =>
+      buildPayablesFromSheet(month, paidMap, coreBlockIds)
+        .filter((bill) => !bill.paid)
+        .map((bill) => ({
+          ...bill,
+          monthKey: month.key,
+          monthLabel: month.label,
+        })),
+    )
+    .sort(
+      (a, b) =>
+        a.monthKey.localeCompare(b.monthKey) ||
+        a.dueDay - b.dueDay ||
+        a.name.localeCompare(b.name, 'pt-BR'),
+    )
+}
+
 export function buildPayablesFromSheet(
   sheet: MonthSheet,
   paidMap: Record<string, boolean>,

@@ -69,9 +69,9 @@ A troca de tela é estado interno, sem URL.
 |------|----------------|---------|
 | **Visão geral** | `overview` | Dashboard do mês ativo |
 | **Planilha** | `cashflow` | Lançamentos do mês, blocos e totais |
-| **Relatórios** | `reports` | Soma dos meses: o que entrou, onde foi o gasto, itens repetidos e investimento |
+| **Relatórios** | `reports` | Recorte por mês, por ano ou de todos os meses: o que entrou, onde foi o gasto, itens repetidos e investimento |
 
-A seção **Mês** da barra lateral lista os meses salvos. Escolher um mês troca os números da tela atual. Cartões, Nossa renda e Contas da casa saíram do menu; um estado antigo nessas rotas volta para **Visão geral**. O card de cartões continua na visão geral.
+A seção **Mês** da barra lateral é um seletor, agrupado por ano. Escolher um mês troca os números da tela atual. Cartões, Nossa renda e Contas da casa saíram do menu; um estado antigo nessas rotas volta para **Visão geral**. O card de cartões continua na visão geral.
 
 No topo, o botão com o nome do mês (ex.: Dezembro/2026) abre a mesma lista e também só troca o mês, sem ir para a planilha.
 
@@ -98,7 +98,7 @@ Recursos da planilha:
 - Células de texto, dia e valor; commit ao **sair do campo** (blur), para não travar ao digitar
 - **TOTAL** por bloco e **sobra do mês** no rodapé
 - **+ Bloco** — colunas personalizadas; reordenar dentro do mesmo grupo; remover bloco; **Trazer de volta** para presets embutidos removidos
-- Abas de mês no rodapé
+- No rodapé, setas e uma lista por ano para trocar o mês aberto, sem uma aba para cada mês
 - **+ Mês anterior** cria o mês antes do mais antigo, copiando os dados do mês que está aberto
 - **+ Mês** cria o mês seguinte ao mais recente, também com os dados do mês aberto
 - **Remover mês** (confirmação) quando há mais de uma aba
@@ -116,12 +116,12 @@ Lê o mês ativo e monta:
 - **Moradia** — itens do bloco CASA, quando houver valores
 - **Cartões** — faturas do bloco de cartão, com a parte de cada uma no total e a lista (nome, dia e valor)
 - **Detalhes da planilha** — blocos e linhas que ficaram fora do saldo
-- **Caixa do mês** — ordem do dinheiro no mês. O caixa começa em zero; no mesmo dia, o que entra conta antes do que sai. Se algum dia fica negativo, o card mostra quanto falta naquela data. Conta do saldo sem dia fica de fora e o card avisa o valor. Se a sobra deste mês for menor que a do mês anterior, o card pede atenção
+- **Caixa do mês** — ordem do dinheiro no mês. O caixa abre com a sobra acumulada dos meses anteriores (a mesma conta do saldo previsto de cada um). No mesmo dia, o que entra conta antes do que sai. Conta marcada como paga não entra no aviso de falta de dinheiro; com todas pagas, o aviso some. Conta do saldo sem dia fica de fora e o card avisa o valor. Se a sobra deste mês for menor que a do mês anterior, o card pede atenção
 
 ## O que mais existe
 
 - **Tema** claro/escuro e **perfil** Pessoa 1 / 2
-- **Notificações** — o sino no topo abre a lista: contas ainda não pagas (nome, dia e valor), falta de caixa antes de alguma conta e queda da sobra em relação ao mês anterior. O número no sino é a soma desses itens
+- **Notificações** — o sino lista as contas do mês atual e dos meses anteriores que ainda não foram marcadas como pagas. Marcar como paga tira a conta da lista. Com todas pagas, o sino fica vazio. Meses futuros, a falta de caixa e a queda da sobra não entram nele; esses avisos ficam no card Caixa do mês
 
 Valores começam em **R$ 0,00** até você preencher.
 
