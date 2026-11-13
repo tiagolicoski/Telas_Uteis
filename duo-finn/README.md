@@ -4,25 +4,50 @@ Dashboard para organizar finanças a dois, inspirado em planilha mensal no estil
 
 ## Onde ficam os dados?
 
-Com `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (veja `.env.example`), a planilha fica no **Supabase**, uma linha por conta. O Tiago não vê a planilha da Marcele. O site publicado no GitHub Pages usa essas chaves. Sem internet, o aparelho mostra a última cópia que carregou e não atualiza o outro aparelho até voltar a conectar.
+Cada pessoa tem a própria planilha. O Tiago não vê a da Marcele, e o contrário também.
 
-Na **primeira entrada do Tiago neste computador**, se a conta dele ainda estiver vazia, o app envia a planilha de `data/duo-finn.json`. A Marcele começa com um mês vazio.
+Com `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (veja `.env.example`), a planilha fica no **Supabase**, plano Free, uma linha por conta na tabela `public.planilhas`. O site publicado no GitHub Pages usa essas mesmas chaves. Sem internet, o aparelho mostra a última cópia que carregou e não atualiza o outro aparelho até voltar a conectar.
 
-Sem essas chaves, `npm run dev` continua no arquivo local: o Vite grava `data/duo-finn.json` em `/api/state`, e os navegadores deste PC compartilham a mesma planilha. Esse arquivo não vai para o git.
+Na **primeira entrada do Tiago neste computador**, se a conta dele ainda estiver vazia no Supabase, o app envia a planilha de `data/duo-finn.json`. A Marcele começa com um mês vazio. O nome na tela sai de `full_name` no usuário; se esse campo não existir, um e-mail com `tiago` ou `marcele` já basta. Só a conta do Tiago importa o arquivo local.
+
+Sem essas chaves, `npm run dev` continua no arquivo local: o Vite grava `data/duo-finn.json` em `/api/state`, e os navegadores deste PC compartilham a mesma planilha. Esse arquivo não vai para o git. Nesse modo o menu ainda mostra Pessoa 1 / Pessoa 2, e o botão só troca o rótulo.
 
 **Limpar a cópia local:** DevTools → Application → Local Storage → apague `duo-finn-v2` (e `duo-finn-v2:<id da conta>` se já entrou com login).
 
+## O que está no ar
+
+O site publicado é [https://tiagolicoski.github.io/Telas_Uteis/](https://tiagolicoski.github.io/Telas_Uteis/). Ele pede e-mail e senha. A Marcele usa esse endereço no navegador do celular.
+
+O banco é o projeto Supabase **duo-finn**, em `https://vqpgukezhmyqibjlkbpb.supabase.co` (o endereço é o Project ID mais `.supabase.co`). Abrir essa URL no navegador devolve `requested path is invalid`: ela é a API, não o site.
+
+Neste computador, as mesmas duas variáveis ficam em `duo-finn/.env.local`, que o git ignora. O `npm run dev` precisa ser reiniciado depois de criar ou mudar esse arquivo.
+
 ## Publicar de graça
 
-O workflow [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) publica o site em `https://tiagolicoski.github.io/Telas_Uteis/` a cada push na `main`.
+O workflow [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) gera o site a cada push na `main` e também pode ser disparado em **Actions → Publicar Duo Finn → Run workflow**. O repositório precisa estar **público**. No plano gratuito, um repositório privado não tem GitHub Pages; o botão Upgrade não entra nesse fluxo.
 
-1. Crie um projeto no plano Free do Supabase. Não contrate plano pago.
-2. Cole [`supabase/planilhas.sql`](supabase/planilhas.sql) no SQL Editor.
-3. Em Authentication → Providers → Email, desligue o cadastro público. Crie só as duas contas e, no metadata, `{"full_name":"Tiago"}` e `{"full_name":"Marcele"}`.
-4. No GitHub, em Settings → Secrets and variables → Actions, crie `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (a chave anon, não a service role).
-5. Em Settings → Pages, a origem fica **GitHub Actions**.
+1. Crie um projeto no plano Free do Supabase. Deixe marcados **Enable Data API** e **Automatically expose new tables**. A senha do banco não é a senha de entrar no site.
+2. Cole [`supabase/planilhas.sql`](supabase/planilhas.sql) no SQL Editor e rode. A regra do banco só devolve a linha do usuário logado.
+3. Em **Authentication → Sign In / Providers → Email**, desligue **Allow new users to sign up**. Em **Authentication → Users → Add user → Create new user**, crie só as duas contas e marque **Auto Confirm User**.
+4. O JSON da ficha do usuário é só leitura. O nome entra pelo SQL Editor:
 
-A chave anon vai no site de propósito. Quem impede uma pessoa de ler a planilha da outra é a regra do banco.
+```sql
+update auth.users
+set raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || '{"full_name":"Tiago"}'::jsonb
+where email = 'email-do-tiago';
+
+update auth.users
+set raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || '{"full_name":"Marcele"}'::jsonb
+where email = 'email-da-marcele';
+```
+
+5. Em **Project Settings → API Keys**, copie a **Publishable key** (`sb_publishable_...`). A **Secret key** (`sb_secret_...`) não vai para o site nem para o GitHub.
+6. No GitHub, em **Settings → Secrets and variables → Actions**, crie `VITE_SUPABASE_URL` (a URL `https://<project-id>.supabase.co`) e `VITE_SUPABASE_ANON_KEY` (a publishable key).
+7. Em **Settings → Pages**, a origem fica **GitHub Actions**.
+
+A publishable key vai no site de propósito. Quem impede uma pessoa de ler a planilha da outra é a regra do banco.
+
+O `.gitignore` usa `/data/` para ignorar só a planilha local `duo-finn/data/`. A pasta `src/data` precisa estar no git. Uma regra `data/` sem a barra inicial também esconde `src/data`, e o build do Pages quebra com `Cannot find module '../data/types'`.
 
 ## Pré-requisito
 
