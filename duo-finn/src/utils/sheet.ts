@@ -29,7 +29,8 @@ export function monthDetailExpensesTotal(
 }
 
 export function monthIncomeTotal(sheet: MonthSheet): number {
-  return sheet.netSalary + (sheet.extraIncomeAmount ?? 0)
+  const extra = (sheet.extraIncomes ?? []).reduce((sum, item) => sum + (item.amount || 0), 0)
+  return sheet.netSalary + extra
 }
 
 export function monthCoreBalance(

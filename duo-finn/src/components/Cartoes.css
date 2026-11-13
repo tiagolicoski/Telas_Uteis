@@ -1,7 +1,7 @@
 .cartoes-card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .cartoes-head {
@@ -10,110 +10,49 @@
   align-items: flex-start;
 }
 
-.carousel-nav {
+.cartoes-bar {
   display: flex;
-  gap: 4px;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-muted);
 }
 
-.carousel-nav button {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: #f1f5f9;
-  font-size: 18px;
+.cartoes-bar > div {
+  height: 100%;
+}
+
+.cartoes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cartoes-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.cartao-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.cartao-name {
   color: var(--text-muted);
 }
 
-.carousel-nav button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.card-stack {
-  position: relative;
-  height: 140px;
-  margin: 8px 0;
-}
-
-.credit-card {
-  position: absolute;
-  border-radius: 14px;
-  padding: 16px;
-  color: white;
-  box-shadow: var(--shadow-lg);
-}
-
-.credit-card.side {
-  width: 55%;
-  height: 100px;
-  left: 0;
-  top: 20px;
-  opacity: 0.5;
-  font-size: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: flex-end;
-}
-
-.credit-card.itau {
-  background: linear-gradient(135deg, #ff6b00, #ff9500);
-}
-
-.credit-card.main {
-  width: 78%;
-  right: 0;
-  top: 0;
-  height: 120px;
-  background: linear-gradient(145deg, #1a1a1a, #333);
-}
-
-.bank {
+.cartao-meta {
+  margin-left: 8px;
   font-size: 11px;
-  opacity: 0.85;
-}
-
-.tier {
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.chip {
-  display: block;
-  width: 28px;
-  height: 20px;
-  margin: 8px 0;
-  background: linear-gradient(135deg, #d4af37, #f5e6a3);
-  border-radius: 4px;
-}
-
-.limit {
-  font-size: 10px;
-  opacity: 0.8;
-}
-
-.card-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  margin-top: 6px;
-  opacity: 0.9;
-}
-
-.chart-label {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.mini-chart svg {
-  width: 100%;
-  height: 48px;
-}
-
-.chart-months {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
   color: var(--text-light);
-  margin-top: 4px;
+}
+
+.cartao-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }

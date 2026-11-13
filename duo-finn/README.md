@@ -69,11 +69,9 @@ A troca de tela é estado interno, sem URL.
 |------|----------------|---------|
 | **Visão geral** | `overview` | Dashboard do mês ativo |
 | **Planilha** | `cashflow` | Lançamentos do mês, blocos e totais |
-| **Cartões** | `cards` | Faturas do bloco de cartão |
-| **Nossa renda** | `income` | Ajustes (placeholder) |
-| **Contas da casa** | `bills` | Ajustes (placeholder) |
+| **Relatórios** | `reports` | Soma dos meses: o que entrou, onde foi o gasto, itens repetidos e investimento |
 
-A seção **Mês** da barra lateral lista os meses salvos. Escolher um mês troca os números da tela atual. Nossa casa e Nossa reserva não estão no menu; um estado antigo nessas rotas volta para **Visão geral**.
+A seção **Mês** da barra lateral lista os meses salvos. Escolher um mês troca os números da tela atual. Cartões, Nossa renda e Contas da casa saíram do menu; um estado antigo nessas rotas volta para **Visão geral**. O card de cartões continua na visão geral.
 
 No topo, o botão com o nome do mês (ex.: Dezembro/2026) abre a mesma lista e também só troca o mês, sem ir para a planilha.
 
@@ -82,7 +80,7 @@ No topo, o botão com o nome do mês (ex.: Dezembro/2026) abre a mesma lista e t
 No topo de cada mês:
 
 - **Salário líquido** e o **dia** em que ele entra
-- **Entrada extra** — descrição (ex.: freela, aluguel recebido), valor e o **dia** em que entra. O valor soma ao salário na sobra
+- **Entrada extra** — uma ou mais linhas, cada uma com descrição (ex.: freela, aluguel recebido), valor e o **dia** em que entra. **+ Entrada** inclui outra. A soma entra na sobra junto com o salário
 
 Blocos padrão (linhas editáveis, valores começam zerados):
 
@@ -116,8 +114,7 @@ Lê o mês ativo e monta:
 - **Saldo previsto** — barra de orçamento (salário, entrada extra, despesas por bloco) e atalhos para subir ou descer blocos do saldo
 - **Contas a pagar** — linhas com dia de vencimento; marcar pago ou desmarcar
 - **Moradia** — itens do bloco CASA, quando houver valores
-- **Divisão da casa** — percentuais a partir das contas CASA
-- **Cartões** — faturas do bloco de cartão, quando houver valores. As setas trocam o cartão da frente. A linha “Projeção das faturas” ainda não prevê meses futuros
+- **Cartões** — faturas do bloco de cartão, com a parte de cada uma no total e a lista (nome, dia e valor)
 - **Detalhes da planilha** — blocos e linhas que ficaram fora do saldo
 - **Caixa do mês** — ordem do dinheiro no mês. O caixa começa em zero; no mesmo dia, o que entra conta antes do que sai. Se algum dia fica negativo, o card mostra quanto falta naquela data. Conta do saldo sem dia fica de fora e o card avisa o valor. Se a sobra deste mês for menor que a do mês anterior, o card pede atenção
 

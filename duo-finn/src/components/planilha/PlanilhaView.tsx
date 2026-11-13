@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { X } from 'lucide-react'
 import { useFinance } from '../../context/FinanceContext'
 import { ConfirmDialog } from './ConfirmDialog'
 import {
@@ -84,46 +85,73 @@ export function PlanilhaView() {
 
         <div className="sheet-top-field sheet-top-extra">
           <span className="sheet-field-label">Entrada extra</span>
-          <div className="sheet-extra-row">
-            <SheetTextInput
-              value={sheet.extraIncomeLabel}
-              placeholder="Freela, aluguel…"
-              aria-label="Descrição da entrada extra"
-              onCommit={(extraIncomeLabel) =>
-                dispatch({
-                  type: 'UPDATE_SHEET_HEADER',
-                  monthKey: sheet.key,
-                  field: 'extraIncomeLabel',
-                  value: extraIncomeLabel,
-                })
-              }
-            />
-            <MoneyInput
-              className="sheet-extra-amount"
-              value={sheet.extraIncomeAmount}
-              onCommit={(extraIncomeAmount) =>
-                dispatch({
-                  type: 'UPDATE_SHEET_HEADER',
-                  monthKey: sheet.key,
-                  field: 'extraIncomeAmount',
-                  value: extraIncomeAmount,
-                })
-              }
-            />
-            <SheetDayInput
-              className="sheet-payday"
-              value={sheet.extraIncomeDay ?? null}
-              aria-label="Dia em que a entrada extra entra"
-              onCommit={(extraIncomeDay) =>
-                dispatch({
-                  type: 'UPDATE_SHEET_HEADER',
-                  monthKey: sheet.key,
-                  field: 'extraIncomeDay',
-                  value: extraIncomeDay,
-                })
-              }
-            />
-          </div>
+          {(sheet.extraIncomes ?? []).map((extra) => (
+            <div key={extra.id} className="sheet-extra-row">
+              <SheetTextInput
+                value={extra.label}
+                placeholder="Freela, aluguel…"
+                aria-label="Descrição da entrada extra"
+                onCommit={(label) =>
+                  dispatch({
+                    type: 'UPDATE_EXTRA_INCOME',
+                    monthKey: sheet.key,
+                    id: extra.id,
+                    field: 'label',
+                    value: label,
+                  })
+                }
+              />
+              <MoneyInput
+                className="sheet-extra-amount"
+                value={extra.amount}
+                onCommit={(amount) =>
+                  dispatch({
+                    type: 'UPDATE_EXTRA_INCOME',
+                    monthKey: sheet.key,
+                    id: extra.id,
+                    field: 'amount',
+                    value: amount,
+                  })
+                }
+              />
+              <SheetDayInput
+                className="sheet-payday"
+                value={extra.day ?? null}
+                aria-label="Dia em que a entrada extra entra"
+                onCommit={(day) =>
+                  dispatch({
+                    type: 'UPDATE_EXTRA_INCOME',
+                    monthKey: sheet.key,
+                    id: extra.id,
+                    field: 'day',
+                    value: day,
+                  })
+                }
+              />
+              <button
+                type="button"
+                className="sheet-extra-remove"
+                title="Remover entrada extra"
+                aria-label="Remover entrada extra"
+                onClick={() =>
+                  dispatch({
+                    type: 'REMOVE_EXTRA_INCOME',
+                    monthKey: sheet.key,
+                    id: extra.id,
+                  })
+                }
+              >
+                <X size={14} strokeWidth={1.75} />
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="sheet-extra-add"
+            onClick={() => dispatch({ type: 'ADD_EXTRA_INCOME', monthKey: sheet.key })}
+          >
+            + Entrada
+          </button>
         </div>
       </div>
 

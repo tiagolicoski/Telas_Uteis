@@ -1,37 +1,29 @@
 import type { LucideIcon } from 'lucide-react'
 import {
   ArrowLeftRight,
+  BarChart3,
   ChevronDown,
-  CreditCard,
-  House,
-  Landmark,
   LayoutDashboard,
   Moon,
   PanelLeftClose,
   PanelLeftOpen,
-  Receipt,
   Sun,
-  Wallet,
 } from 'lucide-react'
 import type { NavId } from '../data/types'
 import { NAV_LABELS, useFinance } from '../context/FinanceContext'
 import './Sidebar.css'
 
-const menuItems: NavId[] = ['overview', 'cashflow', 'cards']
-const settingsItems: NavId[] = ['income', 'bills']
+const menuItems: NavId[] = ['overview', 'cashflow', 'reports']
 
-const icons: Record<NavId, LucideIcon> = {
+const icons: Partial<Record<NavId, LucideIcon>> = {
   overview: LayoutDashboard,
   cashflow: ArrowLeftRight,
-  cards: CreditCard,
-  home: House,
-  reserve: Landmark,
-  income: Wallet,
-  bills: Receipt,
+  reports: BarChart3,
 }
 
 function navLabel(id: NavId): string {
   if (id === 'cashflow') return 'Planilha'
+  if (id === 'reports') return 'Relatórios'
   return NAV_LABELS[id]
 }
 
@@ -60,6 +52,7 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
   function renderNavItem(id: NavId) {
     const label = navLabel(id)
     const Icon = icons[id]
+    if (!Icon) return null
     return (
       <li key={id}>
         <button
@@ -133,9 +126,6 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
             ))}
           </ul>
         </div>
-
-        <p className="nav-section">Ajustes</p>
-        <ul>{settingsItems.map(renderNavItem)}</ul>
       </nav>
 
       <div className="sidebar-footer">

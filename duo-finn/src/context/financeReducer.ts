@@ -85,14 +85,18 @@ export type FinanceAction =
   | {
       type: 'UPDATE_SHEET_HEADER'
       monthKey: string
-      field:
-        | 'netSalary'
-        | 'salaryDay'
-        | 'extraIncomeLabel'
-        | 'extraIncomeAmount'
-        | 'extraIncomeDay'
+      field: 'netSalary' | 'salaryDay'
       value: string | number | null
     }
+  | {
+      type: 'UPDATE_EXTRA_INCOME'
+      monthKey: string
+      id: string
+      field: 'label' | 'amount' | 'day'
+      value: string | number | null
+    }
+  | { type: 'ADD_EXTRA_INCOME'; monthKey: string }
+  | { type: 'REMOVE_EXTRA_INCOME'; monthKey: string; id: string }
   | {
       type: 'UPDATE_SHEET_LINE'
       monthKey: string
@@ -244,6 +248,26 @@ export function financeReducer(state: AppState, action: FinanceAction): AppState
       }
       return patched
     }
+    case 'UPDATE_EXTRA_INCOME':
+      return mapMonth(state, action.monthKey, (m) => ({
+        ...m,
+        extraIncomes: (m.extraIncomes ?? []).map((item) =>
+          item.id !== action.id ? item : { ...item, [action.field]: action.value },
+        ),
+      }))
+    case 'ADD_EXTRA_INCOME':
+      return mapMonth(state, action.monthKey, (m) => ({
+        ...m,
+        extraIncomes: [
+          ...(m.extraIncomes ?? []),
+          { id: newId(), label: '', amount: 0, day: null },
+        ],
+      }))
+    case 'REMOVE_EXTRA_INCOME':
+      return mapMonth(state, action.monthKey, (m) => ({
+        ...m,
+        extraIncomes: (m.extraIncomes ?? []).filter((item) => item.id !== action.id),
+      }))
     case 'UPDATE_SHEET_LINE':
       return mapMonth(state, action.monthKey, (m) => ({
         ...m,

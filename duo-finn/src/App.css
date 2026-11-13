@@ -34,10 +34,22 @@
 /* ——— Dashboard bento grid ——— */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
   gap: 16px;
-  align-content: start;
+  align-items: stretch;
   animation: fade-in 0.35s ease;
+}
+
+.dash-main,
+.dash-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.dash-side > :last-child {
+  flex: 1;
 }
 
 @keyframes fade-in {
@@ -51,28 +63,9 @@
   }
 }
 
-.span-saldo {
-  grid-column: 1 / span 8;
-}
-
-.col-right {
-  grid-column: 9 / span 4;
-  grid-row: 1 / span 3;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.span-divisao {
-  grid-column: 1 / span 6;
-}
-
-.span-cartoes {
-  grid-column: 7 / span 6;
-}
-
+.dashboard-grid .span-cartoes,
 .dashboard-grid .detalhes-planilha,
-.dashboard-grid > :not(.span-saldo):not(.col-right):not(.span-divisao):not(.span-cartoes) {
+.dashboard-grid .span-caixa {
   grid-column: 1 / -1;
 }
 
@@ -186,23 +179,6 @@
 
 /* ——— Breakpoints ——— */
 @media (max-width: 1200px) {
-  .span-saldo {
-    grid-column: 1 / -1;
-  }
-
-  .col-right {
-    grid-column: 1 / -1;
-    grid-row: auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .span-divisao,
-  .span-cartoes {
-    grid-column: span 6;
-  }
-
   .cards-page-grid .span-cartoes,
   .cards-page-aside {
     grid-column: 1 / -1;
@@ -242,15 +218,7 @@
     pointer-events: auto;
   }
 
-  .dashboard-grid,
-  .col-right {
+  .dashboard-grid {
     grid-template-columns: 1fr;
-  }
-
-  .span-saldo,
-  .span-divisao,
-  .span-cartoes,
-  .col-right {
-    grid-column: 1 / -1;
   }
 }

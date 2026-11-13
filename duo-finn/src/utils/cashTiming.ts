@@ -39,13 +39,15 @@ export function buildCashTiming(
       amount: sheet.netSalary,
     })
   }
-  if (sheet.extraIncomeAmount > 0 && sheet.extraIncomeDay) {
-    drafts.push({
-      day: sheet.extraIncomeDay,
-      kind: 'in',
-      label: sheet.extraIncomeLabel.trim() || 'Entrada extra',
-      amount: sheet.extraIncomeAmount,
-    })
+  for (const extra of sheet.extraIncomes ?? []) {
+    if (extra.amount > 0 && extra.day) {
+      drafts.push({
+        day: extra.day,
+        kind: 'in',
+        label: extra.label.trim() || 'Entrada extra',
+        amount: extra.amount,
+      })
+    }
   }
 
   for (const category of sheet.categories) {
@@ -85,7 +87,7 @@ export function buildCashTiming(
     shortfallDay,
     unscheduled,
     missingSalaryDay: sheet.netSalary > 0 && !sheet.salaryDay,
-    missingExtraDay: sheet.extraIncomeAmount > 0 && !sheet.extraIncomeDay,
+    missingExtraDay: (sheet.extraIncomes ?? []).some((extra) => extra.amount > 0 && !extra.day),
   }
 }
 

@@ -189,13 +189,12 @@ export function buildBudgetFromSheet(
       color: BLOCK_COLORS.Salário,
     })
   }
-  if (sheet.extraIncomeAmount > 0) {
-    const label =
-      sheet.extraIncomeLabel.trim() || 'Entrada extra'
+  for (const extra of sheet.extraIncomes ?? []) {
+    if (extra.amount <= 0) continue
     lines.push({
-      id: 'budget-extra',
-      label,
-      amount: sheet.extraIncomeAmount,
+      id: `budget-extra-${extra.id}`,
+      label: extra.label.trim() || 'Entrada extra',
+      amount: extra.amount,
       color: '#38bdf8',
     })
   }
@@ -255,7 +254,6 @@ export type OverviewFromSheet = {
   detailExpensesTotal: number
   balance: number
   sheetLabel: string
-  showDivisao: boolean
   showCartoes: boolean
   showMoradia: boolean
   coreBlockLabels: string[]
@@ -280,7 +278,6 @@ export function overviewFromSheet(
     detailExpensesTotal: monthDetailExpensesTotal(sheet, coreBlockIds),
     balance: monthCoreBalance(sheet, coreBlockIds),
     sheetLabel: sheet.label,
-    showDivisao: coreBlockIds.includes('casa'),
     showCartoes: coreBlockIds.includes('cartao'),
     showMoradia: coreBlockIds.includes('casa'),
     coreBlockLabels: coreBlockIds.map(

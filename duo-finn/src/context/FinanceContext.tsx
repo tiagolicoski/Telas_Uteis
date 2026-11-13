@@ -14,14 +14,12 @@ import { loadState, readStored, saveFinance, scoreFinance } from '../data/storag
 import type {
   AppState,
   Card,
-  HouseBill,
   MoradiaItem,
   NavId,
   Payable,
   Theme,
 } from '../data/types'
 import {
-  houseTotals,
   payablesForDay,
   uniquePayDays,
   unpaidCount,
@@ -48,11 +46,9 @@ interface FinanceContextValue {
   toggleOverviewBlock: (categoryId: string) => void
   derived: {
     planilhaLabel: string
-    houseBills: HouseBill[]
     payables: Payable[]
     cards: Card[]
     moradiaItems: MoradiaItem[]
-    house: ReturnType<typeof houseTotals>
     payDays: number[]
     payablesVisible: ReturnType<typeof payablesForDay>
     payablesDayTotal: number
@@ -68,7 +64,6 @@ interface FinanceContextValue {
     detailBlocks: DetailBlock[]
     detailExpensesTotal: number
     coreExpensesTotal: number
-    showDivisao: boolean
     showCartoes: boolean
     showMoradia: boolean
     showDetalhes: boolean
@@ -206,13 +201,11 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
   ])
 
   const derived = useMemo(() => {
-    const houseBills = sheetDerived?.houseBills ?? []
     const payables = sheetDerived?.payables ?? []
     const cards = sheetDerived?.cards ?? []
     const moradiaItems = sheetDerived?.moradiaItems ?? []
     const monthlySalary = sheetDerived?.monthlySalary ?? 0
 
-    const house = houseTotals(houseBills)
     const payDays = uniquePayDays(payables)
     const payablesVisible = payablesForDay(payables, state.selectedPayDay)
     const payablesDayTotal = payablesVisible.reduce((s, p) => s + p.amount, 0)
@@ -243,11 +236,9 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
 
     return {
       planilhaLabel: sheetDerived?.sheetLabel ?? '',
-      houseBills,
       payables,
       cards,
       moradiaItems,
-      house,
       payDays,
       payablesVisible,
       payablesDayTotal,
@@ -263,7 +254,6 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       detailBlocks: sheetDerived?.detailBlocks ?? [],
       detailExpensesTotal: sheetDerived?.detailExpensesTotal ?? 0,
       coreExpensesTotal: sheetDerived?.coreExpensesTotal ?? 0,
-      showDivisao: sheetDerived?.showDivisao ?? false,
       showCartoes: sheetDerived?.showCartoes ?? false,
       showMoradia: sheetDerived?.showMoradia ?? false,
       showDetalhes: (sheetDerived?.detailBlocks.length ?? 0) > 0,
@@ -358,6 +348,7 @@ export function useFinance() {
 export const NAV_LABELS: Record<NavId, string> = {
   overview: 'Visão geral',
   cashflow: 'Planilha do mês',
+  reports: 'Relatórios',
   cards: 'Cartões',
   home: 'Nossa casa',
   reserve: 'Nossa reserva',
