@@ -480,6 +480,33 @@
   border-radius: 8px;
 }
 
+@media (max-width: 720px) {
+  .sheet-table-wrap {
+    max-width: none;
+    overflow-x: auto;
+  }
+
+  .sheet-text-input,
+  .sheet-money-input,
+  .sheet-day-input,
+  .sheet-month-select {
+    font-size: 16px;
+  }
+
+  .sheet-month-step {
+    width: 44px;
+    height: 44px;
+  }
+
+  .sheet-monthbar .sheet-tab {
+    min-height: 44px;
+  }
+
+  .sheet-monthbar .sheet-tab.remove {
+    margin-left: 0;
+  }
+}
+
 .sheet-tab {
   padding: 8px 14px;
   font-size: 12px;

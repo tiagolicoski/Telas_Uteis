@@ -1,16 +1,28 @@
 # Duo Finn — Finanças em casal
 
-Dashboard para organizar finanças a dois, inspirado em planilha mensal no estilo Google Sheets. **React 18 + TypeScript + Vite.** Dados salvos no navegador.
+Dashboard para organizar finanças a dois, inspirado em planilha mensal no estilo Google Sheets. **React 18 + TypeScript + Vite.** Cada pessoa entra com a própria conta e vê só a sua planilha, no computador ou no celular.
 
 ## Onde ficam os dados?
 
-A planilha fica em **um arquivo** do projeto: `data/duo-finn.json`. O servidor do Vite (`npm run dev` ou `npm run preview`) lê e grava esse arquivo em `/api/state`. Qualquer navegador aberto em `http://localhost:5173/` usa a mesma planilha. Uma alteração aparece nos outros em poucos segundos.
+Com `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (veja `.env.example`), a planilha fica no **Supabase**, uma linha por conta. O Tiago não vê a planilha da Marcele. O site publicado no GitHub Pages usa essas chaves. Sem internet, o aparelho mostra a última cópia que carregou e não atualiza o outro aparelho até voltar a conectar.
 
-O navegador ainda guarda uma cópia em `localStorage` (chave `duo-finn-v2`) para abrir rápido e não perder o último estado se o servidor estiver parado. Na primeira vez que um navegador entra, o app compara essa cópia com o arquivo e fica com a planilha mais completa, para uma tela vazia não apagar a que já estava preenchida.
+Na **primeira entrada do Tiago neste computador**, se a conta dele ainda estiver vazia, o app envia a planilha de `data/duo-finn.json`. A Marcele começa com um mês vazio.
 
-Esse arquivo não vai para o git. Ele vale para os navegadores **deste computador**, com o servidor ligado. Outro PC ou o celular fora da rede não enxergam esses dados.
+Sem essas chaves, `npm run dev` continua no arquivo local: o Vite grava `data/duo-finn.json` em `/api/state`, e os navegadores deste PC compartilham a mesma planilha. Esse arquivo não vai para o git.
 
-**Limpar dados:** apague `data/duo-finn.json` e, em cada navegador, DevTools → Application → Local Storage → apague `duo-finn-v2` e `duo-finn-synced`.
+**Limpar a cópia local:** DevTools → Application → Local Storage → apague `duo-finn-v2` (e `duo-finn-v2:<id da conta>` se já entrou com login).
+
+## Publicar de graça
+
+O workflow [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) publica o site em `https://tiagolicoski.github.io/Telas_Uteis/` a cada push na `main`.
+
+1. Crie um projeto no plano Free do Supabase. Não contrate plano pago.
+2. Cole [`supabase/planilhas.sql`](supabase/planilhas.sql) no SQL Editor.
+3. Em Authentication → Providers → Email, desligue o cadastro público. Crie só as duas contas e, no metadata, `{"full_name":"Tiago"}` e `{"full_name":"Marcele"}`.
+4. No GitHub, em Settings → Secrets and variables → Actions, crie `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (a chave anon, não a service role).
+5. Em Settings → Pages, a origem fica **GitHub Actions**.
+
+A chave anon vai no site de propósito. Quem impede uma pessoa de ler a planilha da outra é a regra do banco.
 
 ## Pré-requisito
 
@@ -120,7 +132,7 @@ Lê o mês ativo e monta:
 
 ## O que mais existe
 
-- **Tema** claro/escuro e **perfil** Pessoa 1 / 2
+- **Tema** claro/escuro. Com login, o rodapé do menu mostra o nome da conta e **Sair**. Sem as chaves do Supabase, continua o botão Pessoa 1 / 2, que só troca o rótulo
 - **Notificações** — o sino lista as contas do mês atual e dos meses anteriores que ainda não foram marcadas como pagas. Marcar como paga tira a conta da lista. Com todas pagas, o sino fica vazio. Meses futuros, a falta de caixa e a queda da sobra não entram nele; esses avisos ficam no card Caixa do mês
 
 Valores começam em **R$ 0,00** até você preencher.
@@ -153,4 +165,4 @@ Valores começam em **R$ 0,00** até você preencher.
 - **React** — UI e contexto
 - **TypeScript** — tipagem
 - **lucide-react** — ícones
-- Sem banco externo; a planilha compartilhada é o arquivo `data/duo-finn.json` enquanto o Vite está no ar
+- **Supabase** — login e a planilha de cada conta, no plano gratuito. Sem as chaves, o arquivo `data/duo-finn.json` continua valendo só neste computador

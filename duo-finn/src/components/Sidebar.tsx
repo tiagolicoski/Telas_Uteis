@@ -10,6 +10,7 @@ import {
   Sun,
 } from 'lucide-react'
 import type { NavId } from '../data/types'
+import { useAccount } from '../context/AccountContext'
 import { NAV_LABELS, useFinance } from '../context/FinanceContext'
 import { monthsByYear } from '../utils/sheet'
 import './Sidebar.css'
@@ -36,6 +37,7 @@ interface SidebarProps {
 export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
   const { state, setNav, setTheme, toggleProfile, toggleSidebarCollapsed, dispatch } =
     useFinance()
+  const account = useAccount()
   const collapsed = state.sidebarCollapsed
 
   const monthGroups = monthsByYear(state.sheetMonths)
@@ -151,24 +153,37 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
             <Moon size={16} strokeWidth={1.75} />
           </button>
         </div>
-        <button
-          type="button"
-          className="profile-switch"
-          onClick={toggleProfile}
-          title={
-            collapsed
-              ? state.profile === 'pessoa1'
-                ? 'Pessoa 1'
-                : 'Pessoa 2'
-              : undefined
-          }
-        >
-          <span className="avatar small a1">P</span>
-          <span className="profile-label">
-            {state.profile === 'pessoa1' ? 'Pessoa 1' : 'Pessoa 2'}
-          </span>
-          <ChevronDown className="chev" size={16} strokeWidth={1.75} />
-        </button>
+        {account.cloud ? (
+          <button
+            type="button"
+            className="profile-switch"
+            onClick={() => void account.signOut()}
+            title={collapsed ? `Sair (${account.label})` : 'Sair'}
+          >
+            <span className="avatar small a1">{account.label.slice(0, 1).toUpperCase()}</span>
+            <span className="profile-label">{account.label}</span>
+            <span className="profile-label">Sair</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="profile-switch"
+            onClick={toggleProfile}
+            title={
+              collapsed
+                ? state.profile === 'pessoa1'
+                  ? 'Pessoa 1'
+                  : 'Pessoa 2'
+                : undefined
+            }
+          >
+            <span className="avatar small a1">P</span>
+            <span className="profile-label">
+              {state.profile === 'pessoa1' ? 'Pessoa 1' : 'Pessoa 2'}
+            </span>
+            <ChevronDown className="chev" size={16} strokeWidth={1.75} />
+          </button>
+        )}
       </div>
     </aside>
   )

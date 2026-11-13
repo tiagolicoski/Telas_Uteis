@@ -88,3 +88,16 @@
 .task-value {
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .check {
+    width: 44px;
+    height: 44px;
+  }
+
+  .day-chip {
+    min-width: 48px;
+    height: 48px;
+    font-size: 16px;
+  }
+}

@@ -292,10 +292,16 @@
   .breadcrumb {
     flex: 1;
     order: 2;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .header-actions {
     order: 3;
+    margin-left: auto;
+    flex-shrink: 0;
   }
 
   .month-picker-wrap {

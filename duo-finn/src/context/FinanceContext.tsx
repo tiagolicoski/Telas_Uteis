@@ -9,8 +9,17 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import {
+  fetchCloud,
+  isTiagoAccount,
+  markCloudSynced,
+  pushCloud,
+  spreadsheetOnThisComputer,
+  wasCloudSynced,
+} from '../data/cloudState'
 import { fetchRemote, markSynced, pushRemote, wasSynced } from '../data/remoteState'
 import { loadState, readStored, saveFinance, scoreFinance } from '../data/storage'
+import { useAccount } from './AccountContext'
 import type {
   AppState,
   Card,
@@ -86,7 +95,9 @@ interface FinanceContextValue {
 const FinanceContext = createContext<FinanceContextValue | null>(null)
 
 export function FinanceProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(financeReducer, undefined, loadState)
+  const account = useAccount()
+  const userId = account.cloud ? account.userId : null
+  const [state, dispatch] = useReducer(financeReducer, userId, loadState)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
@@ -103,33 +114,73 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false
-    const local = readStored()
+    const local = readStored(userId)
     revisionRef.current = local.updatedAt
 
     void (async () => {
       try {
-        const remote = await fetchRemote()
-        if (cancelled) return
-        const localScore = scoreFinance(local.state)
-        const remoteScore = remote ? scoreFinance(remote.finance) : 0
-        const firstVisit = !wasSynced()
-        const remoteWins =
-          remote != null &&
-          (firstVisit ? remoteScore >= localScore : remote.updatedAt >= local.updatedAt)
-
-        if (remote && remoteWins) {
-          revisionRef.current = remote.updatedAt
-          markSynced()
-          skipSaveRef.current = true
-          saveFinance({ ...local.state, ...remote.finance }, remote.updatedAt)
-          dispatch({ type: 'HYDRATE_FINANCE', finance: remote.finance })
+        if (account.cloud && userId) {
+          const remote = await fetchCloud(userId)
+          if (cancelled) return
+          const localScore = scoreFinance(local.state)
+          const remoteScore = remote ? scoreFinance(remote.finance) : 0
+          if (
+            remoteScore === 0 &&
+            localScore === 0 &&
+            isTiagoAccount(account.email, account.label)
+          ) {
+            const file = await spreadsheetOnThisComputer()
+            if (cancelled) return
+            if (file && scoreFinance(file.finance) > 0) {
+              revisionRef.current = await pushCloud(userId, {
+                ...local.state,
+                ...file.finance,
+              })
+              skipSaveRef.current = true
+              dispatch({ type: 'HYDRATE_FINANCE', finance: file.finance })
+              return
+            }
+          }
+          const firstVisit = !wasCloudSynced(userId)
+          const remoteWins =
+            remote != null &&
+            remoteScore > 0 &&
+            (firstVisit ? remoteScore >= localScore : remote.updatedAt >= local.updatedAt)
+          if (remote && remoteWins) {
+            revisionRef.current = remote.updatedAt
+            markCloudSynced(userId)
+            skipSaveRef.current = true
+            saveFinance({ ...local.state, ...remote.finance }, remote.updatedAt, userId)
+            dispatch({ type: 'HYDRATE_FINANCE', finance: remote.finance })
+          } else {
+            pushingRef.current = true
+            revisionRef.current = await pushCloud(userId, local.state)
+            pushingRef.current = false
+          }
         } else {
-          pushingRef.current = true
-          revisionRef.current = await pushRemote(local.state)
-          pushingRef.current = false
+          const remote = await fetchRemote()
+          if (cancelled) return
+          const localScore = scoreFinance(local.state)
+          const remoteScore = remote ? scoreFinance(remote.finance) : 0
+          const firstVisit = !wasSynced()
+          const remoteWins =
+            remote != null &&
+            (firstVisit ? remoteScore >= localScore : remote.updatedAt >= local.updatedAt)
+
+          if (remote && remoteWins) {
+            revisionRef.current = remote.updatedAt
+            markSynced()
+            skipSaveRef.current = true
+            saveFinance({ ...local.state, ...remote.finance }, remote.updatedAt)
+            dispatch({ type: 'HYDRATE_FINANCE', finance: remote.finance })
+          } else {
+            pushingRef.current = true
+            revisionRef.current = await pushRemote(local.state)
+            pushingRef.current = false
+          }
         }
       } catch {
-        saveFinance(local.state, local.updatedAt || Date.now())
+        saveFinance(local.state, local.updatedAt || Date.now(), userId)
       } finally {
         if (!cancelled) {
           readyRef.current = true
@@ -141,7 +192,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [account.cloud, account.email, account.label, userId])
 
   useEffect(() => {
     if (!readyRef.current) return
@@ -153,12 +204,14 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     saveTimerRef.current = setTimeout(() => {
       saveTimerRef.current = null
       pushingRef.current = true
-      void pushRemote(state)
+      const persist =
+        account.cloud && userId ? pushCloud(userId, state) : pushRemote(state)
+      void persist
         .then((updatedAt) => {
           revisionRef.current = updatedAt
         })
         .catch(() => {
-          saveFinance(state)
+          saveFinance(state, Date.now(), userId)
         })
         .finally(() => {
           pushingRef.current = false
@@ -182,24 +235,27 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     state.nav,
     state.profile,
     state.sidebarCollapsed,
+    account.cloud,
+    userId,
   ])
 
   useEffect(() => {
     if (!ready) return
     const timer = setInterval(() => {
       if (pushingRef.current || saveTimerRef.current) return
-      void fetchRemote()
+      const load = account.cloud && userId ? () => fetchCloud(userId) : fetchRemote
+      void load()
         .then((remote) => {
           if (!remote || remote.updatedAt <= revisionRef.current) return
           revisionRef.current = remote.updatedAt
           skipSaveRef.current = true
-          saveFinance({ ...stateRef.current, ...remote.finance }, remote.updatedAt)
+          saveFinance({ ...stateRef.current, ...remote.finance }, remote.updatedAt, userId)
           dispatch({ type: 'HYDRATE_FINANCE', finance: remote.finance })
         })
         .catch(() => undefined)
     }, 3000)
     return () => clearInterval(timer)
-  }, [ready])
+  }, [ready, account.cloud, userId])
 
   const sheetDerived = useMemo(() => {
     const sheet = getSheetMonth(state.sheetMonths, state.activeSheetMonthKey)
