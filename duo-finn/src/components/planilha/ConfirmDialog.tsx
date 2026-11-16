@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import './ConfirmDialog.css'
 
 type Props = {
@@ -21,9 +23,18 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: Props) {
+  useEffect(() => {
+    if (!open) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCancel()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, onCancel])
+
   if (!open) return null
 
-  return (
+  return createPortal(
     <div className="confirm-backdrop" role="presentation" onClick={onCancel}>
       <dialog
         className="confirm-card"
@@ -51,6 +62,7 @@ export function ConfirmDialog({
           </button>
         </div>
       </dialog>
-    </div>
+    </div>,
+    document.body,
   )
 }

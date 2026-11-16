@@ -14,6 +14,7 @@ import {
   monthCoreExpensesTotal,
   monthDetailExpensesTotal,
 } from './sheet'
+import { blockShowsInBills, formatBlockTitle } from './sheetBlocks'
 
 export type DetailLineItem = {
   id: string
@@ -103,11 +104,10 @@ export function buildPayablesFromSheet(
   paidMap: Record<string, boolean>,
   coreBlockIds: string[],
 ): Payable[] {
-  const set = new Set(coreBlockIds)
   const out: Payable[] = []
 
   for (const category of sheet.categories) {
-    if (!set.has(category.id)) continue
+    if (!blockShowsInBills(category, coreBlockIds)) continue
     for (const line of category.lines) {
       if (line.amount <= 0) continue
       const id = payableId(sheet.key, category.id, line.id)
@@ -239,7 +239,7 @@ export function buildBudgetFromSheet(
     if (tot <= 0) continue
     lines.push({
       id: `budget-${id}`,
-      label: category?.title ?? categoryTitle(id),
+      label: formatBlockTitle(category?.title ?? categoryTitle(id)) || categoryTitle(id),
       amount: tot,
       color: BLOCK_COLORS[id] ?? '#94a3b8',
     })
@@ -266,7 +266,7 @@ export function buildDetailBlocks(
     .filter((c) => !set.has(c.id))
     .map((category) => ({
       id: category.id,
-      title: category.title,
+      title: formatBlockTitle(category.title) || category.title,
       total: categoryTotal(category),
       lines: category.lines.map((l) => ({
         id: l.id,
@@ -315,7 +315,7 @@ export function overviewFromSheet(
     showCartoes: coreBlockIds.includes('cartao'),
     showMoradia: coreBlockIds.includes('casa'),
     coreBlockLabels: coreBlockIds.map(
-      (id) => cat(sheet, id)?.title ?? categoryTitle(id),
+      (id) => formatBlockTitle(cat(sheet, id)?.title ?? categoryTitle(id)) || categoryTitle(id),
     ),
   }
 }

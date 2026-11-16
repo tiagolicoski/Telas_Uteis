@@ -20,9 +20,13 @@ import {
 } from '../data/sheetTemplate'
 import { newId } from '../utils/format'
 import {
+  blockShowsInBills,
   categoryExistsInAnyMonth,
+  categoryForRestore,
+  formatBlockTitle,
   mapAllSheetCategories,
   partitionOverviewCategories,
+  snapshotCategory,
 } from '../utils/sheetBlocks'
 
 function shiftMonthKey(key: string, delta: number): string {
@@ -114,11 +118,13 @@ export type FinanceAction =
       lineId: string
     }
   | { type: 'TOGGLE_OVERVIEW_BLOCK'; categoryId: string }
-  | { type: 'MOVE_SHEET_BLOCK'; categoryId: string; direction: 'left' | 'right' }
-  | { type: 'ADD_SHEET_BLOCK'; title: string }
-  | { type: 'REMOVE_SHEET_BLOCK'; categoryId: string }
-  | { type: 'RESTORE_SHEET_BLOCK'; presetId: string }
-  | { type: 'UPDATE_SHEET_CATEGORY_TITLE'; categoryId: string; title: string }
+  | { type: 'TOGGLE_BILLS_BLOCK'; monthKey: string; categoryId: string }
+  | { type: 'MOVE_SHEET_BLOCK'; monthKey: string; categoryId: string; direction: 'left' | 'right' }
+  | { type: 'ADD_SHEET_BLOCK'; monthKey: string; title: string }
+  | { type: 'REMOVE_SHEET_BLOCK'; monthKey: string; categoryId: string }
+  | { type: 'RESTORE_SHEET_BLOCK'; monthKey: string; categoryId: string }
+  | { type: 'DISMISS_RESTORE_BLOCK'; categoryId: string }
+  | { type: 'UPDATE_SHEET_CATEGORY_TITLE'; monthKey: string; categoryId: string; title: string }
 
 const BUDGET_PRESETS: Record<string, string> = {
   Salário: '#2d5bff',
@@ -329,85 +335,128 @@ export function financeReducer(state: AppState, action: FinanceAction): AppState
       )
       return { ...regrouped, overviewBlockIds }
     }
+    case 'TOGGLE_BILLS_BLOCK':
+      return mapMonth(state, action.monthKey, (m) => ({
+        ...m,
+        categories: m.categories.map((c) =>
+          c.id !== action.categoryId
+            ? c
+            : {
+                ...c,
+                inBills: !blockShowsInBills(c, state.overviewBlockIds),
+              },
+        ),
+      }))
     case 'MOVE_SHEET_BLOCK':
-      return mapAllSheetCategories(state, (categories) => {
-        const idx = categories.findIndex((c) => c.id === action.categoryId)
-        if (idx < 0) return categories
-        const inSaldo = new Set(state.overviewBlockIds)
-        const currentIn = inSaldo.has(categories[idx]!.id)
-        const step = action.direction === 'left' ? -1 : 1
-        let target = idx + step
-        while (target >= 0 && target < categories.length) {
-          if (inSaldo.has(categories[target]!.id) === currentIn) break
-          target += step
-        }
-        if (target < 0 || target >= categories.length) return categories
-        const next = [...categories]
-        const [item] = next.splice(idx, 1)
-        const insertAt = next.findIndex((c) => c.id === categories[target]!.id)
-        const at = action.direction === 'right' ? insertAt + 1 : insertAt
-        next.splice(at, 0, item!)
-        return next
-      })
+      return mapMonth(state, action.monthKey, (m) => ({
+        ...m,
+        categories: moveBlock(m.categories, action.categoryId, action.direction, state.overviewBlockIds),
+      }))
     case 'ADD_SHEET_BLOCK': {
-      const title = action.title.trim().toUpperCase()
+      const title = formatBlockTitle(action.title)
       if (!title) return state
       const id = `custom_${newId()}`
-      return {
-        ...state,
-        sheetMonths: state.sheetMonths.map((m) => ({
-          ...m,
-          categories: [
-            ...m.categories,
-            {
-              id,
-              title,
-              lines: [{ id: newId(), label: 'Novo item', amount: 0, dueDay: null }],
-            },
-          ],
-        })),
-      }
+      return mapMonth(state, action.monthKey, (m) => ({
+        ...m,
+        categories: [
+          ...m.categories,
+          {
+            id,
+            title,
+            inBills: false,
+            lines: [{ id: newId(), label: 'Novo item', amount: 0, dueDay: null }],
+          },
+        ],
+      }))
     }
     case 'REMOVE_SHEET_BLOCK': {
-      if (
-        !state.sheetMonths.some((m) =>
-          m.categories.some((c) => c.id === action.categoryId),
-        )
-      ) {
-        return state
+      const month = getSheetMonth(state, action.monthKey)
+      if (!month || month.categories.length <= 1) return state
+      const removed = month.categories.find((c) => c.id === action.categoryId)
+      if (!removed) return state
+      const next = mapMonth(state, action.monthKey, (m) => ({
+        ...m,
+        categories: m.categories.filter((c) => c.id !== action.categoryId),
+      }))
+      const hidden = new Set(state.hiddenRestoreIds ?? [])
+      const removedBlocks = hidden.has(removed.id)
+        ? (state.removedBlocks ?? [])
+        : upsertRemovedBlock(state.removedBlocks ?? [], snapshotCategory(removed))
+      if (categoryExistsInAnyMonth(next, action.categoryId)) {
+        return { ...next, removedBlocks }
       }
-      const overviewBlockIds = state.overviewBlockIds.filter(
-        (id) => id !== action.categoryId,
-      )
-      const next = mapAllSheetCategories(state, (categories) => {
-        if (categories.length <= 1) return categories
-        return categories.filter((c) => c.id !== action.categoryId)
-      })
-      return { ...next, overviewBlockIds }
+      return {
+        ...next,
+        removedBlocks,
+        overviewBlockIds: next.overviewBlockIds.filter((id) => id !== action.categoryId),
+      }
     }
     case 'RESTORE_SHEET_BLOCK': {
-      if (categoryExistsInAnyMonth(state, action.presetId)) return state
-      const preset = categoryFromPreset(action.presetId)
-      if (!preset) return state
+      const month = getSheetMonth(state, action.monthKey)
+      if (!month || month.categories.some((c) => c.id === action.categoryId)) return state
+      const source = categoryForRestore(state, action.categoryId) ?? categoryFromPreset(action.categoryId)
+      if (!source) return state
+      const restored = {
+        ...source,
+        lines: source.lines.map((line) => ({ ...line, id: newId() })),
+      }
+      return mapMonth(state, action.monthKey, (m) => ({
+        ...m,
+        categories: [...m.categories, restored],
+      }))
+    }
+    case 'DISMISS_RESTORE_BLOCK': {
+      if ((state.hiddenRestoreIds ?? []).includes(action.categoryId)) return state
       return {
         ...state,
-        sheetMonths: state.sheetMonths.map((m) => ({
-          ...m,
-          categories: [...m.categories, categoryFromPreset(action.presetId)!],
-        })),
+        hiddenRestoreIds: [...(state.hiddenRestoreIds ?? []), action.categoryId],
+        removedBlocks: (state.removedBlocks ?? []).filter((block) => block.id !== action.categoryId),
       }
     }
     case 'UPDATE_SHEET_CATEGORY_TITLE':
-      return mapAllSheetCategories(state, (categories) =>
-        categories.map((c) =>
+      return mapMonth(state, action.monthKey, (m) => ({
+        ...m,
+        categories: m.categories.map((c) =>
           c.id === action.categoryId
-            ? { ...c, title: action.title.trim() || c.title }
+            ? { ...c, title: formatBlockTitle(action.title) || c.title }
             : c,
         ),
-      )
+      }))
     default:
       return state
   }
+}
+
+function upsertRemovedBlock(
+  blocks: import('../data/types').SheetCategory[],
+  block: import('../data/types').SheetCategory,
+) {
+  return [...blocks.filter((item) => item.id !== block.id), block]
+}
+
+function moveBlock(
+  categories: import('../data/types').SheetCategory[],
+  categoryId: string,
+  direction: 'left' | 'right',
+  overviewIds: string[],
+) {
+  const idx = categories.findIndex((c) => c.id === categoryId)
+  if (idx < 0) return categories
+  const inSaldo = new Set(overviewIds)
+  const currentIn = inSaldo.has(categories[idx]!.id)
+  const step = direction === 'left' ? -1 : 1
+  let target = idx + step
+  while (target >= 0 && target < categories.length) {
+    if (inSaldo.has(categories[target]!.id) === currentIn) break
+    target += step
+  }
+  if (target < 0 || target >= categories.length) return categories
+  const next = [...categories]
+  const [item] = next.splice(idx, 1)
+  const insertAt = next.findIndex((c) => c.id === categories[target]!.id)
+  const at = direction === 'right' ? insertAt + 1 : insertAt
+  next.splice(at, 0, item!)
+  return next
 }
 
 function getSheetMonth(state: AppState, key: string) {

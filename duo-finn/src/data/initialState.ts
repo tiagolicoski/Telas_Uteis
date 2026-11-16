@@ -24,4 +24,6 @@ export const initialState: AppState = {
   activeSheetMonthKey: sheets[0]?.key ?? currentMonthKey(),
   payablePaid: {},
   overviewBlockIds: [...DEFAULT_OVERVIEW_BLOCK_IDS],
+  removedBlocks: [],
+  hiddenRestoreIds: [],
 }

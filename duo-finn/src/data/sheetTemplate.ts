@@ -82,6 +82,7 @@ export function cloneCategoriesForNewMonth(source: SheetCategory[]): SheetCatego
       amount: 0,
       dueDay: l.dueDay ?? null,
     })),
+    ...(c.inBills !== undefined ? { inBills: c.inBills } : {}),
   }))
 }
 
@@ -111,6 +112,7 @@ export function cloneMonthSheetFromSource(
         amount: l.amount,
         dueDay: l.dueDay ?? null,
       })),
+      ...(c.inBills !== undefined ? { inBills: c.inBills } : {}),
     })),
   }
 }

@@ -72,6 +72,12 @@ export interface SheetCategory {
   id: string
   title: string
   lines: SheetLine[]
+  /**
+   * true: entra no card Contas a pagar deste mês.
+   * false: fica de fora.
+   * ausente: segue o bloco no saldo, como antes desta opção.
+   */
+  inBills?: boolean
 }
 
 export interface ExtraIncome {
@@ -106,6 +112,10 @@ export interface FinanceData {
   payablePaid: Record<string, boolean>
   /** Blocos da planilha que entram no saldo e na visão geral */
   overviewBlockIds: string[]
+  /** Cópia dos blocos apagados, para trazer de volta em outro mês. */
+  removedBlocks: SheetCategory[]
+  /** Blocos que não devem mais aparecer em Trazer de volta. */
+  hiddenRestoreIds: string[]
 }
 
 export interface UiState {

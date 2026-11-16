@@ -1,5 +1,6 @@
 import type { MonthSheet } from '../data/types'
 import { categoryTotal, monthCoreBalance, monthExpensesTotal, monthIncomeTotal } from './sheet'
+import { formatBlockTitle } from './sheetBlocks'
 
 const BAR_COLORS = ['#0f766e', '#334155', '#64748b', '#0e7490', '#57534e', '#1d4ed8']
 
@@ -46,7 +47,7 @@ export function buildMonthReport(
     for (const category of sheet.categories) {
       const total = categoryTotal(category)
       if (total <= 0) continue
-      const title = category.title.trim() || 'Bloco'
+      const title = formatBlockTitle(category.title) || 'BLOCO'
       blockTotals.set(title, (blockTotals.get(title) ?? 0) + total)
       if (isInvestment(category.id, title)) {
         monthInvested += total
