@@ -1,8 +1,10 @@
-import { ChevronLeft, ChevronRight, Circle, CircleDot, X } from 'lucide-react'
-import { memo } from 'react'
-import type { SheetCategory } from '../../data/types'
+import { ChevronLeft, ChevronRight, Circle, CircleDot, Receipt, X } from 'lucide-react'
+import { memo, useState } from 'react'
+import type { SheetCategory, SheetLine } from '../../data/types'
 import { useFinance } from '../../context/FinanceContext'
 import { categoryTotal } from '../../utils/sheet'
+import { blockShowsInBills, formatBlockTitle } from '../../utils/sheetBlocks'
+import { ConfirmDialog } from './ConfirmDialog'
 import { MoneyInput } from './MoneyInput'
 import { SheetDayInput } from './SheetDayInput'
 import { SheetTextInput } from './SheetTextInput'
@@ -24,8 +26,14 @@ export const SheetCategoryTable = memo(function SheetCategoryTable({
   canRemove,
 }: Props) {
   const { formatBRL, dispatch, state } = useFinance()
+  const [pendingDelete, setPendingDelete] = useState<
+    { kind: 'line'; line: SheetLine } | { kind: 'block' } | null
+  >(null)
+  const monthLabel =
+    state.sheetMonths.find((month) => month.key === monthKey)?.label ?? 'deste mês'
   const total = categoryTotal(category)
   const inOverview = state.overviewBlockIds.includes(category.id)
+  const inBills = blockShowsInBills(category, state.overviewBlockIds)
 
   return (
     <div className="sheet-table-wrap">
@@ -38,6 +46,7 @@ export const SheetCategoryTable = memo(function SheetCategoryTable({
           onClick={() =>
             dispatch({
               type: 'MOVE_SHEET_BLOCK',
+              monthKey,
               categoryId: category.id,
               direction: 'left',
             })
@@ -53,6 +62,7 @@ export const SheetCategoryTable = memo(function SheetCategoryTable({
           onClick={() =>
             dispatch({
               type: 'MOVE_SHEET_BLOCK',
+              monthKey,
               categoryId: category.id,
               direction: 'right',
             })
@@ -80,20 +90,37 @@ export const SheetCategoryTable = memo(function SheetCategoryTable({
         </button>
         <button
           type="button"
+          className={`sheet-block-btn bills ${inBills ? 'on' : ''}`}
+          aria-pressed={inBills}
+          title={
+            inBills
+              ? 'Aparece em Contas a pagar — clique para tirar deste mês'
+              : 'Fora de Contas a pagar — clique para incluir neste mês'
+          }
+          onClick={() =>
+            dispatch({ type: 'TOGGLE_BILLS_BLOCK', monthKey, categoryId: category.id })
+          }
+        >
+          <Receipt size={16} strokeWidth={1.75} />
+        </button>
+        <button
+          type="button"
           className="sheet-block-btn danger"
           disabled={!canRemove}
-          aria-label="Remover bloco"
-          title="Remover bloco (todos os meses)"
-          onClick={() => {
-            if (window.confirm(`Remover o bloco "${category.title}"?`)) {
-              dispatch({ type: 'REMOVE_SHEET_BLOCK', categoryId: category.id })
-            }
-          }}
+          aria-label="Remover bloco deste mês"
+          title="Remover bloco só deste mês"
+          onClick={() => setPendingDelete({ kind: 'block' })}
         >
           <X size={16} strokeWidth={1.75} />
         </button>
       </div>
       <table className="sheet-table">
+        <colgroup>
+          <col />
+          <col className="col-dia" />
+          <col className="col-valor" />
+          <col className="col-remove" />
+        </colgroup>
         <thead>
           <tr>
             <th colSpan={3}>
@@ -104,17 +131,20 @@ export const SheetCategoryTable = memo(function SheetCategoryTable({
                 onCommit={(title) =>
                   dispatch({
                     type: 'UPDATE_SHEET_CATEGORY_TITLE',
+                    monthKey,
                     categoryId: category.id,
                     title,
                   })
                 }
               />
             </th>
+            <th className="sheet-remove-head" />
           </tr>
           <tr className="sheet-subhead">
             <th>ITEM</th>
             <th>DIA</th>
             <th>VALOR</th>
+            <th className="sheet-remove-head" />
           </tr>
         </thead>
         <tbody>
@@ -164,20 +194,16 @@ export const SheetCategoryTable = memo(function SheetCategoryTable({
                     })
                   }
                 />
+              </td>
+              <td className="sheet-remove-cell">
                 <button
                   type="button"
                   className="sheet-remove"
                   title="Remover linha"
-                  onClick={() =>
-                    dispatch({
-                      type: 'REMOVE_SHEET_LINE',
-                      monthKey,
-                      categoryId: category.id,
-                      lineId: line.id,
-                    })
-                  }
+                  aria-label={`Remover a linha ${line.label || 'sem nome'}`}
+                  onClick={() => setPendingDelete({ kind: 'line', line })}
                 >
-                  <X size={12} strokeWidth={1.75} />
+                  <X size={14} strokeWidth={1.75} />
                 </button>
               </td>
             </tr>
@@ -188,6 +214,7 @@ export const SheetCategoryTable = memo(function SheetCategoryTable({
             <td>TOTAL</td>
             <td />
             <td>{formatBRL(total)}</td>
+            <td className="sheet-remove-cell" />
           </tr>
         </tfoot>
       </table>
@@ -205,6 +232,34 @@ export const SheetCategoryTable = memo(function SheetCategoryTable({
       >
         + linha
       </button>
+      <ConfirmDialog
+        open={pendingDelete != null}
+        title={pendingDelete?.kind === 'block' ? 'Excluir bloco' : 'Excluir linha'}
+        message={
+          pendingDelete?.kind === 'block'
+            ? `Excluir o bloco "${formatBlockTitle(category.title) || category.title}" só de ${monthLabel}? Os outros meses continuam com ele.`
+            : pendingDelete?.kind === 'line'
+              ? `Excluir a linha "${pendingDelete.line.label.trim() || 'sem nome'}" deste bloco?`
+              : ''
+        }
+        confirmLabel="Excluir"
+        danger
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (pendingDelete?.kind === 'line') {
+            dispatch({
+              type: 'REMOVE_SHEET_LINE',
+              monthKey,
+              categoryId: category.id,
+              lineId: pendingDelete.line.id,
+            })
+          }
+          if (pendingDelete?.kind === 'block') {
+            dispatch({ type: 'REMOVE_SHEET_BLOCK', monthKey, categoryId: category.id })
+          }
+          setPendingDelete(null)
+        }}
+      />
     </div>
   )
 })

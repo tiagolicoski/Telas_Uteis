@@ -1,8 +1,9 @@
 import { memo } from 'react'
-import { BLOCK_COLORS } from '../data/sheetCategories'
 import { useFinance } from '../context/FinanceContext'
 import type { DetailBlock } from '../utils/overviewFromSheet'
 import './DetalhesPlanilha.css'
+
+const DETAIL_COLORS = ['#0f766e', '#0e7490', '#1d4ed8', '#334155', '#57534e', '#64748b']
 
 function ChartBar({
   label,
@@ -74,8 +75,8 @@ export const DetalhesPlanilha = memo(function DetalhesPlanilha() {
       </header>
 
       <div className="detalhes-chart">
-        {detailBlocks.map((block) => {
-          const color = BLOCK_COLORS[block.id] ?? '#94a3b8'
+        {detailBlocks.map((block, index) => {
+          const color = DETAIL_COLORS[index % DETAIL_COLORS.length]!
 
           return (
             <div key={block.id} className="detalhe-block-group">

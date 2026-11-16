@@ -1,5 +1,6 @@
 import type { MonthSheet } from '../data/types'
 import { monthCoreBalance } from './sheet'
+import { formatBlockTitle } from './sheetBlocks'
 
 export type CashEvent = {
   day: number
@@ -94,7 +95,7 @@ export function buildCashTiming(
       drafts.push({
         day: line.dueDay,
         kind: 'out',
-        label: line.label.trim() || category.title,
+        label: line.label.trim() || formatBlockTitle(category.title) || category.title,
         amount: line.amount,
         paid: paidMap[`${sheet.key}:${category.id}:${line.id}`] === true,
       })

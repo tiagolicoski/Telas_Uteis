@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import type { ExtraIncome } from '../../data/types'
 import { useFinance } from '../../context/FinanceContext'
 import { ConfirmDialog } from './ConfirmDialog'
 import {
@@ -19,6 +20,7 @@ import './Planilha.css'
 export function PlanilhaView() {
   const { state, formatBRL, dispatch } = useFinance()
   const [removeMonthOpen, setRemoveMonthOpen] = useState(false)
+  const [extraToRemove, setExtraToRemove] = useState<ExtraIncome | null>(null)
   const monthGroups = monthsByYear(state.sheetMonths)
   const orderedMonths = monthGroups.flatMap((group) => group.months)
   const monthIndex = orderedMonths.findIndex((month) => month.key === state.activeSheetMonthKey)
@@ -54,6 +56,23 @@ export function PlanilhaView() {
         danger
         onConfirm={confirmRemoveMonth}
         onCancel={() => setRemoveMonthOpen(false)}
+      />
+      <ConfirmDialog
+        open={extraToRemove != null}
+        title="Excluir entrada extra"
+        message={`Excluir a entrada "${extraToRemove?.label.trim() || 'sem nome'}" deste mês?`}
+        confirmLabel="Excluir"
+        danger
+        onCancel={() => setExtraToRemove(null)}
+        onConfirm={() => {
+          if (!extraToRemove) return
+          dispatch({
+            type: 'REMOVE_EXTRA_INCOME',
+            monthKey: sheet.key,
+            id: extraToRemove.id,
+          })
+          setExtraToRemove(null)
+        }}
       />
       <div className="sheet-top">
         <div className="sheet-top-field">
@@ -137,13 +156,7 @@ export function PlanilhaView() {
                 className="sheet-extra-remove"
                 title="Remover entrada extra"
                 aria-label="Remover entrada extra"
-                onClick={() =>
-                  dispatch({
-                    type: 'REMOVE_EXTRA_INCOME',
-                    monthKey: sheet.key,
-                    id: extra.id,
-                  })
-                }
+                onClick={() => setExtraToRemove(extra)}
               >
                 <X size={14} strokeWidth={1.75} />
               </button>

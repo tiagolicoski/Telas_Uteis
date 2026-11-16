@@ -1,4 +1,5 @@
 import { getSheetMonth } from '../utils/sheet'
+import { formatBlockTitle } from '../utils/sheetBlocks'
 import { useFinance } from '../context/FinanceContext'
 import './OverviewBlockToggles.css'
 
@@ -30,7 +31,7 @@ export function OverviewBlockToggles() {
               }
             >
               {on ? '✓ ' : ''}
-              {cat.title}
+              {formatBlockTitle(cat.title) || cat.title}
             </button>
           )
         })}
