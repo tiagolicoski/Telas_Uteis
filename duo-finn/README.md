@@ -4,11 +4,11 @@ Dashboard para organizar finanças a dois, inspirado em planilha mensal no estil
 
 ## Onde ficam os dados?
 
-Cada pessoa tem a própria planilha. O Tiago não vê a da Marcele, e o contrário também.
+Cada pessoa tem a própria planilha. Uma conta não vê a da outra.
 
 Com `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (veja `.env.example`), a planilha fica no **Supabase**, plano Free, uma linha por conta na tabela `public.planilhas`. O site publicado no GitHub Pages usa essas mesmas chaves. Sem internet, o aparelho mostra a última cópia que carregou e não atualiza o outro aparelho até voltar a conectar.
 
-Na **primeira entrada do Tiago neste computador**, se a conta dele ainda estiver vazia no Supabase, o app envia a planilha de `data/duo-finn.json`. A Marcele começa com um mês vazio. O nome na tela sai de `full_name` no usuário; se esse campo não existir, um e-mail com `tiago` ou `marcele` já basta. Só a conta do Tiago importa o arquivo local.
+Na **primeira entrada neste computador**, se a conta ainda estiver vazia no Supabase e for a conta de importação, o app envia a planilha de `data/duo-finn.json`. As outras contas começam com um mês vazio. O nome na tela sai de `full_name` no usuário. Sem esse campo, o app usa a parte do e-mail antes do `@`. A conta de importação é a que o código reconhece como dona da planilha deste computador.
 
 Sem essas chaves, `npm run dev` continua no arquivo local: o Vite grava `data/duo-finn.json` em `/api/state`, e os navegadores deste PC compartilham a mesma planilha. Esse arquivo não vai para o git. Nesse modo o menu ainda mostra Pessoa 1 / Pessoa 2, e o botão só troca o rótulo.
 
@@ -16,11 +16,65 @@ Sem essas chaves, `npm run dev` continua no arquivo local: o Vite grava `data/du
 
 ## O que está no ar
 
-O site publicado é [https://tiagolicoski.github.io/Telas_Uteis/](https://tiagolicoski.github.io/Telas_Uteis/). Ele pede e-mail e senha. A Marcele usa esse endereço no navegador do celular.
+O site publicado é [https://tiagolicoski.github.io/Telas_Uteis/](https://tiagolicoski.github.io/Telas_Uteis/). Ele pede e-mail e senha. No celular, a outra conta usa esse mesmo endereço no navegador.
 
 O banco é o projeto Supabase **duo-finn**, em `https://vqpgukezhmyqibjlkbpb.supabase.co` (o endereço é o Project ID mais `.supabase.co`). Abrir essa URL no navegador devolve `requested path is invalid`: ela é a API, não o site.
 
 Neste computador, as mesmas duas variáveis ficam em `duo-finn/.env.local`, que o git ignora. O `npm run dev` precisa ser reiniciado depois de criar ou mudar esse arquivo.
+
+## Melhorar sem mudar o site no ar
+
+Existem duas branches:
+
+| Branch | O que acontece no push |
+|--------|------------------------|
+| `main` | O GitHub publica o site de novo. Quem já usa o site vê a mudança. |
+| `Homologação` | O código fica salvo no GitHub. O site no ar continua igual. |
+
+O dia a dia é na **Homologação**. A `main` só recebe a melhoria quando ela já foi vista neste computador.
+
+**1. Entre na branch de trabalho** (na pasta do repositório, um nível acima de `duo-finn`):
+
+```bash
+cd c:\Users\admin\Desktop\Estudos\Telas_Uteis
+git switch Homologação
+git pull
+git merge main
+```
+
+O `git merge main` traz para a Homologação o que já está publicado, para a melhoria nascer em cima do site atual.
+
+**2. Faça a mudança e olhe neste computador:**
+
+```bash
+cd duo-finn
+npm run dev
+```
+
+Abra http://localhost:5173/ e confira a tela. Esse endereço usa o mesmo banco do site. Olhar a planilha é seguro. Digitar um valor, logado na sua conta, grava na planilha publicada e aparece nos outros aparelhos.
+
+**3. Guarde na Homologação:**
+
+```bash
+cd c:\Users\admin\Desktop\Estudos\Telas_Uteis
+git add .
+git commit -m "descreva a melhoria"
+git push
+```
+
+O `.env.local` e a planilha `data/duo-finn.json` ficam de fora do git. Depois desse push o site publicado segue o mesmo.
+
+**4. Quando a tela estiver boa, publique:**
+
+```bash
+git switch main
+git pull
+git merge Homologação
+git push
+git switch Homologação
+```
+
+O push da `main` dispara o workflow **Publicar Duo Finn**. Em cerca de um minuto o site em https://tiagolicoski.github.io/Telas_Uteis/ passa a ter a melhoria. O último comando volta para a Homologação, pronta para a próxima mudança.
 
 ## Publicar de graça
 
@@ -33,12 +87,12 @@ O workflow [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) gera 
 
 ```sql
 update auth.users
-set raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || '{"full_name":"Tiago"}'::jsonb
-where email = 'email-do-tiago';
+set raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || '{"full_name":"Conta 1"}'::jsonb
+where email = 'email-da-conta-1';
 
 update auth.users
-set raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || '{"full_name":"Marcele"}'::jsonb
-where email = 'email-da-marcele';
+set raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || '{"full_name":"Conta 2"}'::jsonb
+where email = 'email-da-conta-2';
 ```
 
 5. Em **Project Settings → API Keys**, copie a **Publishable key** (`sb_publishable_...`). A **Secret key** (`sb_secret_...`) não vai para o site nem para o GitHub.

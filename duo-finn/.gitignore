@@ -4,4 +4,4 @@ dist/
 .env
 .env.local
 .env.*.local
-README.md
+README.md/
