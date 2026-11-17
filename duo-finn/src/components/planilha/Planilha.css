@@ -539,8 +539,9 @@
 }
 
 .sheet-month-select {
-  padding: 0 10px;
-  border-radius: 8px;
+  min-width: 158px;
+  padding: 0 12px;
+  border-radius: 999px;
   font: inherit;
   font-size: 13px;
   font-weight: 600;

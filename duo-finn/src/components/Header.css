@@ -6,8 +6,11 @@
   align-items: center;
   gap: 14px;
   min-height: var(--header-height);
-  padding: 10px 20px;
-  margin: 0 -20px 16px;
+  padding: 10px var(--page-pad, 20px);
+  margin: 0 calc(var(--page-pad, 20px) * -1) 16px;
+  width: calc(100% + var(--page-pad, 20px));
+  max-width: calc(100% + var(--page-pad, 20px));
+  min-width: 0;
   background: var(--bg-elevated);
   border-bottom: 1px solid var(--border);
 }
@@ -94,12 +97,12 @@
   z-index: 20;
   min-width: 100%;
   margin: 0;
-  padding: 4px;
+  padding: 8px;
   list-style: none;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
+  border-radius: 18px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
 }
 
 .month-menu-item {

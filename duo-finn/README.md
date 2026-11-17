@@ -6,7 +6,7 @@ Dashboard para organizar finanças a dois, inspirado em planilha mensal no estil
 
 Cada pessoa tem a própria planilha. Uma conta não vê a da outra.
 
-Com `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (veja `.env.example`), a planilha fica no **Supabase**, plano Free, uma linha por conta na tabela `public.planilhas`. O site publicado no GitHub Pages usa essas mesmas chaves. Sem internet, o aparelho mostra a última cópia que carregou e não atualiza o outro aparelho até voltar a conectar.
+Com `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (veja `.env.example`), a planilha fica no **Supabase**, plano Free, uma linha por conta na tabela `public.planilhas`. O JSON dessa linha também guarda as compras parceladas (`installmentPurchases`). O site publicado no GitHub Pages usa essas mesmas chaves. Sem internet, o aparelho mostra a última cópia que carregou e não atualiza o outro aparelho até voltar a conectar.
 
 Na **primeira entrada neste computador**, se a conta ainda estiver vazia no Supabase e for a conta de importação, o app envia a planilha de `data/duo-finn.json`. As outras contas começam com um mês vazio. O nome na tela sai de `full_name` no usuário. Sem esse campo, o app usa a parte do e-mail antes do `@`. A conta de importação é a que o código reconhece como dona da planilha deste computador.
 
@@ -160,11 +160,12 @@ A troca de tela é estado interno, sem URL.
 |------|----------------|---------|
 | **Visão geral** | `overview` | Dashboard do mês ativo |
 | **Planilha** | `cashflow` | Lançamentos do mês, blocos e totais |
-| **Relatórios** | `reports` | Recorte por mês, por ano ou de todos os meses: o que entrou, onde foi o gasto, itens repetidos e investimento |
+| **Parcelas** | `installments` | Compras parceladas e a agenda mês a mês |
+| **Relatórios** | `reports` | Recorte por mês, por ano ou de todos os meses: o que entrou, onde foi o gasto, itens repetidos, investimento e o card de parcelas |
 
-A seção **Mês** da barra lateral é um seletor, agrupado por ano. Escolher um mês troca os números da tela atual. Cartões, Nossa renda e Contas da casa saíram do menu; um estado antigo nessas rotas volta para **Visão geral**. O card de cartões continua na visão geral.
+A seção **Mês** da barra lateral é uma lista em português, agrupada por ano. Escolher um mês troca os números da tela atual. Cartões, Nossa renda e Contas da casa saíram do menu; um estado antigo nessas rotas volta para **Visão geral**. O card de cartões continua na visão geral.
 
-No topo, o botão com o nome do mês (ex.: Dezembro/2026) abre a mesma lista e também só troca o mês, sem ir para a planilha.
+No topo, o botão com o nome do mês (ex.: Dezembro/2026) abre a mesma lista e também só troca o mês, sem ir para a planilha. O rodapé da planilha e o filtro de mês dos relatórios usam essa lista. A primeira parcela usa uma grade Jan–Dez do ano escolhido.
 
 ## Planilha (modelo mensal)
 
@@ -197,6 +198,22 @@ Recursos da planilha:
 Fórmula da sobra (mês ativo):
 
 `salário líquido + entrada extra − soma dos blocos no saldo`
+
+## Parcelas
+
+Cadastro à parte da planilha. O valor cheio do cartão continua o que está digitado no bloco. Parcelas não entram no saldo, nas contas a pagar nem no caixa do mês.
+
+Cada compra guarda:
+
+- nome
+- **valor da compra** — o app divide pela quantidade; a última parcela fica com os centavos que sobram
+- quantidade, de 1 a 48
+- mês da primeira parcela
+- nome do cartão, só como etiqueta
+
+A agenda é calculada da primeira parcela até a última. Ela mostra meses que a planilha ainda não tem. O mês atual ainda conta em **Falta pagar**. Quando a última parcela fica para trás, a compra permanece na lista com **Falta pagar R$ 0,00** e os meses anteriores ficam mais claros. Nada é arquivado nem apagado sozinho. **Excluir** tira a compra e as parcelas; a planilha não muda.
+
+Conta nova abre essa tela vazia.
 
 ## Visão geral
 
@@ -233,7 +250,10 @@ Valores começam em **R$ 0,00** até você preencher.
 | `src/utils/overviewFromSheet.ts` | Planilha → dashboard |
 | `src/utils/cashTiming.ts` | Caixa do mês e queda da sobra |
 | `src/utils/calculations.ts` | Contas e segmentos do orçamento |
-| `src/utils/format.ts` | BRL e ids |
+| `src/utils/format.ts` | BRL, ids e o valor da compra enquanto se digita |
+| `src/utils/installments.ts` | Divisão da compra, agenda e totais por cartão |
+| `src/components/Parcelas.tsx` | Cadastro, lista e agenda |
+| `src/components/MonthPicker.tsx` | Lista de meses e grade da primeira parcela |
 | `src/components/planilha/` | Planilha, inputs, tabelas de bloco |
 | `src/components/CaixaDoMes.tsx` | Card do caixa do mês |
 | `src/components/` | Cards da visão geral, header, sidebar |

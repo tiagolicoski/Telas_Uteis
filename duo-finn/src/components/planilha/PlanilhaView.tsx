@@ -15,6 +15,7 @@ import { SheetDayInput } from './SheetDayInput'
 import { SheetTextInput } from './SheetTextInput'
 import { SheetBlocksToolbar } from './SheetBlocksToolbar'
 import { SheetCategoryTable } from './SheetCategoryTable'
+import { MonthListPicker } from '../MonthPicker'
 import './Planilha.css'
 
 export function PlanilhaView() {
@@ -242,22 +243,14 @@ export function PlanilhaView() {
           >
             <ChevronLeft size={16} strokeWidth={1.75} />
           </button>
-          <select
-            className="sheet-month-select"
-            aria-label="Mês da planilha"
+          <MonthListPicker
+            placement="up"
+            triggerClassName="sheet-month-select"
+            ariaLabel="Mês da planilha"
             value={sheet.key}
-            onChange={(event) => dispatch({ type: 'SET_SHEET_MONTH', key: event.target.value })}
-          >
-            {monthGroups.map((group) => (
-              <optgroup key={group.year} label={group.year}>
-                {group.months.map((month) => (
-                  <option key={month.key} value={month.key}>
-                    {month.label}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+            months={monthGroups.flatMap((group) => group.months)}
+            onChange={(key) => dispatch({ type: 'SET_SHEET_MONTH', key })}
+          />
           <button
             type="button"
             className="sheet-month-step"

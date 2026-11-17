@@ -19,6 +19,7 @@ import {
   monthKeyToLabel,
 } from '../data/sheetTemplate'
 import { newId } from '../utils/format'
+import { splitPurchase } from '../utils/installments'
 import {
   blockShowsInBills,
   categoryExistsInAnyMonth,
@@ -124,6 +125,11 @@ export type FinanceAction =
   | { type: 'REMOVE_SHEET_BLOCK'; monthKey: string; categoryId: string }
   | { type: 'RESTORE_SHEET_BLOCK'; monthKey: string; categoryId: string }
   | { type: 'DISMISS_RESTORE_BLOCK'; categoryId: string }
+  | {
+      type: 'SAVE_INSTALLMENT'
+      purchase: import('../data/types').InstallmentPurchase
+    }
+  | { type: 'REMOVE_INSTALLMENT'; id: string }
   | { type: 'UPDATE_SHEET_CATEGORY_TITLE'; monthKey: string; categoryId: string; title: string }
 
 const BUDGET_PRESETS: Record<string, string> = {
@@ -413,6 +419,25 @@ export function financeReducer(state: AppState, action: FinanceAction): AppState
         removedBlocks: (state.removedBlocks ?? []).filter((block) => block.id !== action.categoryId),
       }
     }
+    case 'SAVE_INSTALLMENT': {
+      const purchase = normalizeInstallment(action.purchase)
+      if (!purchase) return state
+      const list = state.installmentPurchases ?? []
+      const exists = list.some((item) => item.id === purchase.id)
+      return {
+        ...state,
+        installmentPurchases: exists
+          ? list.map((item) => (item.id === purchase.id ? purchase : item))
+          : [...list, purchase],
+      }
+    }
+    case 'REMOVE_INSTALLMENT':
+      return {
+        ...state,
+        installmentPurchases: (state.installmentPurchases ?? []).filter(
+          (item) => item.id !== action.id,
+        ),
+      }
     case 'UPDATE_SHEET_CATEGORY_TITLE':
       return mapMonth(state, action.monthKey, (m) => ({
         ...m,
@@ -424,6 +449,30 @@ export function financeReducer(state: AppState, action: FinanceAction): AppState
       }))
     default:
       return state
+  }
+}
+
+function normalizeInstallment(
+  purchase: import('../data/types').InstallmentPurchase,
+): import('../data/types').InstallmentPurchase | null {
+  const label = purchase.label.trim()
+  const count = Math.round(purchase.count)
+  const total =
+    purchase.purchaseAmount != null && Number.isFinite(purchase.purchaseAmount)
+      ? purchase.purchaseAmount
+      : purchase.installmentAmount * count
+  if (!label || !/^\d{4}-\d{2}$/.test(purchase.startKey)) return null
+  if (!Number.isFinite(total) || total < 0) return null
+  if (!Number.isFinite(count) || count < 1 || count > 48) return null
+  const parts = splitPurchase(total, count)
+  return {
+    id: purchase.id,
+    label,
+    purchaseAmount: Math.round(total * 100) / 100,
+    installmentAmount: parts[0] ?? 0,
+    count: parts.length,
+    startKey: purchase.startKey,
+    cardLabel: purchase.cardLabel.trim(),
   }
 }
 

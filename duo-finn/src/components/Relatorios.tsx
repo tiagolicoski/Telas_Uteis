@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useFinance } from '../context/FinanceContext'
+import { summarizeInstallments } from '../utils/installments'
 import { buildMonthReport } from '../utils/reports'
+import { MonthListPicker } from './MonthPicker'
 import { monthsByYear } from '../utils/sheet'
 import './Relatorios.css'
 
@@ -34,6 +36,15 @@ export function Relatorios() {
   const biggest = report.blocks[0]
   const maxBlock = biggest?.amount ?? 0
   const maxItem = report.items[0]?.amount ?? 0
+  const installments = summarizeInstallments(
+    state.installmentPurchases ?? [],
+    scope === 'month' ? { kind: 'month', key: monthKey } : scope === 'year' ? { kind: 'year', year } : { kind: 'all' },
+  )
+  const maxCard = Math.max(
+    0,
+    ...installments.byCard.map((card) => Math.max(card.period, card.remaining)),
+  )
+  const periodTitle = scope === 'month' ? 'Neste mês' : scope === 'year' ? 'Neste ano' : 'Total das compras'
 
   return (
     <section className="reports">
@@ -70,22 +81,14 @@ export function Relatorios() {
             ))}
           </div>
           {scope === 'month' && (
-            <select
-              className="reports-select"
-              aria-label="Mês do relatório"
+            <MonthListPicker
+              labelMode="month"
+              triggerClassName="reports-select"
+              ariaLabel="Mês do relatório"
               value={monthKey}
-              onChange={(event) => setMonthPick(event.target.value)}
-            >
-              {groups.map((group) => (
-                <optgroup key={group.year} label={group.year}>
-                  {group.months.map((month) => (
-                    <option key={month.key} value={month.key}>
-                      {month.label.split('/')[0]}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+              months={groups.flatMap((group) => group.months)}
+              onChange={setMonthPick}
+            />
           )}
           {scope === 'year' && (
             <select
@@ -130,6 +133,56 @@ export function Relatorios() {
           <p className="reports-note">Blocos com investimento no nome</p>
         </article>
       </div>
+
+      <article className="card">
+        <p className="card-title">Parcelas</p>
+        <p className="reports-note">
+          A agenda das compras. Estes valores não entram no saldo da planilha.
+        </p>
+        {installments.purchaseCount === 0 ? (
+          <p className="reports-note">Nenhuma compra parcelada.</p>
+        ) : (
+          <>
+            <div className="reports-installment-stats">
+              <div>
+                <span>{periodTitle}</span>
+                <strong>{formatBRL(installments.periodTotal)}</strong>
+              </div>
+              <div>
+                <span>Falta pagar</span>
+                <strong>{formatBRL(installments.remainingAmount)}</strong>
+              </div>
+              <div>
+                <span>Em aberto</span>
+                <strong>
+                  {installments.openCount} de {installments.purchaseCount}
+                </strong>
+              </div>
+            </div>
+            <ul className="reports-bars">
+              {installments.byCard.map((card, index) => (
+                <li key={card.label}>
+                  <div className="reports-bar-label">
+                    <span>{card.label}</span>
+                    <strong>
+                      {formatBRL(card.period)} · falta {formatBRL(card.remaining)}
+                    </strong>
+                  </div>
+                  <div className="reports-track">
+                    <div
+                      className="reports-fill"
+                      style={{
+                        width: `${maxCard > 0 ? (Math.max(card.period, card.remaining) / maxCard) * 100 : 0}%`,
+                        background: ['#0f766e', '#334155', '#0e7490', '#1d4ed8', '#57534e'][index % 5],
+                      }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </article>
 
       <article className="card">
         <p className="card-title">{scope === 'year' ? `Meses de ${year}` : 'Mês a mês'}</p>

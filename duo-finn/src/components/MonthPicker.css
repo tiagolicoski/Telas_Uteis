@@ -1,0 +1,136 @@
+.month-list-anchor {
+  position: relative;
+  min-width: 0;
+}
+
+.month-list-anchor > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.month-list-anchor.is-block,
+.month-list-anchor.is-block > button {
+  width: 100%;
+}
+
+.month-list-anchor .chev {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.month-list-anchor .chev.open {
+  transform: rotate(180deg);
+}
+
+.month-grid-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.month-panel {
+  position: fixed;
+  z-index: 200;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--bg-elevated);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+.month-panel.is-grid {
+  padding: 12px;
+}
+
+.month-panel-year {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.month-panel-year strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.month-panel-year button {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--text-muted);
+}
+
+.month-panel-year button:hover {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+
+.month-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.month-panel-grid button,
+.month-panel-list button {
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.month-panel-grid button {
+  height: 32px;
+}
+
+.month-panel-grid button:hover,
+.month-panel-list button:hover {
+  background: var(--surface-muted);
+}
+
+.month-panel-grid button.is-selected,
+.month-panel-list button.is-selected {
+  background: var(--accent);
+  color: #fff;
+}
+
+.month-panel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.month-panel-list p {
+  margin: 2px 10px 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-light);
+}
+
+.month-panel-list button {
+  width: 100%;
+  padding: 7px 12px;
+  text-align: left;
+}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Bell, Calendar, ChevronDown, Menu } from 'lucide-react'
 import { NAV_LABELS, useFinance } from '../context/FinanceContext'
+import { MonthListPicker } from './MonthPicker'
 import './Header.css'
 
 interface HeaderProps {
@@ -9,25 +10,18 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { state, derived, dispatch, formatBRL } = useFinance()
-  const [monthsOpen, setMonthsOpen] = useState(false)
   const [notifsOpen, setNotifsOpen] = useState(false)
-  const monthMenuRef = useRef<HTMLDivElement>(null)
   const notifRef = useRef<HTMLDivElement>(null)
   const months = [...state.sheetMonths].sort((a, b) => a.key.localeCompare(b.key))
-  const menuOpen = monthsOpen || notifsOpen
 
   useEffect(() => {
-    if (!menuOpen) return
+    if (!notifsOpen) return
     function onPointerDown(event: MouseEvent) {
       const target = event.target as Node
-      if (!monthMenuRef.current?.contains(target)) setMonthsOpen(false)
       if (!notifRef.current?.contains(target)) setNotifsOpen(false)
     }
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setMonthsOpen(false)
-        setNotifsOpen(false)
-      }
+      if (event.key === 'Escape') setNotifsOpen(false)
     }
     document.addEventListener('mousedown', onPointerDown)
     document.addEventListener('keydown', onKeyDown)
@@ -35,7 +29,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       document.removeEventListener('mousedown', onPointerDown)
       document.removeEventListener('keydown', onKeyDown)
     }
-  }, [menuOpen])
+  }, [notifsOpen])
   const title = NAV_LABELS[state.nav]
   const unpaid = derived.pendingBills
   const bellLabel =
@@ -60,49 +54,24 @@ export function Header({ onMenuClick }: HeaderProps) {
         <span className="crumb-current">{title}</span>
       </div>
 
-      <div className="month-picker-wrap" ref={monthMenuRef}>
-        <button
-          type="button"
-          className="month-picker"
-          aria-haspopup="listbox"
-          aria-expanded={monthsOpen}
-          onClick={() => {
+      <div className="month-picker-wrap">
+        <MonthListPicker
+          value={state.activeSheetMonthKey}
+          months={months}
+          ariaLabel="Escolher o mês"
+          triggerClassName="month-picker"
+          onChange={(key) => {
             setNotifsOpen(false)
-            setMonthsOpen((open) => !open)
+            dispatch({ type: 'SET_SHEET_MONTH', key })
           }}
-          title="Escolher o mês"
-        >
-          <Calendar className="month-picker-icon" size={16} strokeWidth={1.75} aria-hidden />
-          {derived.planilhaLabel || state.monthLabel}
-          <ChevronDown
-            className={`chev ${monthsOpen ? 'open' : ''}`}
-            size={16}
-            strokeWidth={1.75}
-          />
-        </button>
-        {monthsOpen && (
-          <ul className="month-menu" role="listbox" aria-label="Meses">
-            {months.map((month) => {
-              const selected = month.key === state.activeSheetMonthKey
-              return (
-                <li key={month.key}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={selected}
-                    className={`month-menu-item ${selected ? 'active' : ''}`}
-                    onClick={() => {
-                      dispatch({ type: 'SET_SHEET_MONTH', key: month.key })
-                      setMonthsOpen(false)
-                    }}
-                  >
-                    {month.label}
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-        )}
+          renderTrigger={(open) => (
+            <>
+              <Calendar className="month-picker-icon" size={16} strokeWidth={1.75} aria-hidden />
+              {derived.planilhaLabel || state.monthLabel}
+              <ChevronDown className={`chev ${open ? 'open' : ''}`} size={16} strokeWidth={1.75} />
+            </>
+          )}
+        />
       </div>
 
       <div className="header-actions">
@@ -113,10 +82,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             aria-label={bellLabel}
             aria-haspopup="dialog"
             aria-expanded={notifsOpen}
-            onClick={() => {
-              setMonthsOpen(false)
-              setNotifsOpen((open) => !open)
-            }}
+            onClick={() => setNotifsOpen((open) => !open)}
           >
             <Bell size={18} strokeWidth={1.75} />
             {derived.notifications > 0 && (

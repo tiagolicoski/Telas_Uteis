@@ -26,4 +26,5 @@ export const initialState: AppState = {
   overviewBlockIds: [...DEFAULT_OVERVIEW_BLOCK_IDS],
   removedBlocks: [],
   hiddenRestoreIds: [],
+  installmentPurchases: [],
 }

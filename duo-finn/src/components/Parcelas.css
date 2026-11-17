@@ -1,0 +1,196 @@
+.parcelas {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.parcelas-intro h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.parcelas-intro p,
+.parcelas-note,
+.parcelas-list li p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.parcelas-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 12px;
+  align-items: end;
+  min-width: 0;
+}
+
+.parcelas-form label,
+.parcelas-form .parcelas-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.parcelas-form input {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xs);
+  background: var(--bg-elevated);
+}
+
+.parcelas-form-actions,
+.parcelas-row-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.parcelas-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.parcelas-btn.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.parcelas-btn.danger {
+  color: var(--danger);
+}
+
+.parcelas-list ul,
+.parcelas-month ul {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.parcelas-list li > div:first-child {
+  flex: 1;
+  min-width: min(100%, 220px);
+}
+
+.parcelas-remaining {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 120px;
+}
+
+.parcelas-remaining span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.parcelas-remaining strong {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.parcelas-list li,
+.parcelas-month li,
+.parcelas-month header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+.parcelas-month.card {
+  padding: 8px 10px;
+  box-shadow: none;
+}
+
+.parcelas-month header {
+  padding: 0 0 4px;
+  border-top: none;
+  gap: 8px;
+}
+
+.parcelas-month header p {
+  margin: 0;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.parcelas-month header em {
+  font-style: normal;
+  font-weight: 500;
+}
+
+.parcelas-month header strong,
+.parcelas-month li strong {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.parcelas-month ul {
+  margin-top: 0;
+}
+
+.parcelas-month li {
+  align-items: baseline;
+  padding: 3px 0;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.parcelas-month li span {
+  min-width: 0;
+}
+
+.parcelas-month li em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.parcelas-month.is-past {
+  opacity: 0.7;
+}
+
+.parcelas-month.is-current {
+  box-shadow: inset 2px 0 0 var(--primary);
+  opacity: 1;
+}
+
+.parcelas-agenda {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 8px;
+  min-width: 0;
+}

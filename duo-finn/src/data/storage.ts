@@ -28,6 +28,7 @@ const financeKeys: (keyof FinanceData)[] = [
   'overviewBlockIds',
   'removedBlocks',
   'hiddenRestoreIds',
+  'installmentPurchases',
 ]
 
 export function loadState(userId?: string | null): AppState {

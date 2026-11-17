@@ -10,6 +10,7 @@ import { Moradia } from './components/Moradia'
 import { DetalhesPlanilha } from './components/DetalhesPlanilha'
 import { PlanilhaView } from './components/planilha/PlanilhaView'
 import { Relatorios } from './components/Relatorios'
+import { Parcelas } from './components/Parcelas'
 import { useFinance } from './context/FinanceContext'
 
 function Dashboard() {
@@ -40,7 +41,12 @@ export default function App() {
   const openDrawer = useCallback(() => setDrawerOpen(true), [])
 
   useEffect(() => {
-    if (state.nav !== 'overview' && state.nav !== 'cashflow' && state.nav !== 'reports') {
+    if (
+      state.nav !== 'overview' &&
+      state.nav !== 'cashflow' &&
+      state.nav !== 'reports' &&
+      state.nav !== 'installments'
+    ) {
       setNav('overview')
     }
   }, [state.nav, setNav])
@@ -87,6 +93,8 @@ export default function App() {
             </div>
           ) : state.nav === 'reports' ? (
             <Relatorios />
+          ) : state.nav === 'installments' ? (
+            <Parcelas />
           ) : (
             <Dashboard />
           )}

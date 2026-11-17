@@ -6,6 +6,7 @@ export type NavId =
   | 'overview'
   | 'cashflow'
   | 'reports'
+  | 'installments'
   | 'cards'
   | 'home'
   | 'reserve'
@@ -99,6 +100,22 @@ export interface MonthSheet {
   categories: SheetCategory[]
 }
 
+/** Compra dividida em parcelas. Não entra no saldo nem no bloco do cartão. */
+export interface InstallmentPurchase {
+  id: string
+  label: string
+  /** Valor total da compra. Cada parcela é esse valor dividido pela quantidade. */
+  purchaseAmount?: number
+  /** Valor de cada parcela. Nas compras novas, sai da divisão do total. */
+  installmentAmount: number
+  /** Quantidade de parcelas, de 1 a 48. */
+  count: number
+  /** Mês da primeira parcela, no formato AAAA-MM. */
+  startKey: string
+  /** Etiqueta livre, como o nome do cartão. */
+  cardLabel: string
+}
+
 export interface FinanceData {
   houseBills: HouseBill[]
   payables: Payable[]
@@ -116,6 +133,8 @@ export interface FinanceData {
   removedBlocks: SheetCategory[]
   /** Blocos que não devem mais aparecer em Trazer de volta. */
   hiddenRestoreIds: string[]
+  /** Compras parceladas. A agenda é calculada; a fatura do cartão continua digitada. */
+  installmentPurchases: InstallmentPurchase[]
 }
 
 export interface UiState {

@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react'
 import {
   ArrowLeftRight,
   BarChart3,
+  CalendarRange,
   ChevronDown,
   LayoutDashboard,
   Moon,
@@ -13,19 +14,22 @@ import type { NavId } from '../data/types'
 import { useAccount } from '../context/AccountContext'
 import { NAV_LABELS, useFinance } from '../context/FinanceContext'
 import { monthsByYear } from '../utils/sheet'
+import { MonthListPicker } from './MonthPicker'
 import './Sidebar.css'
 
-const menuItems: NavId[] = ['overview', 'cashflow', 'reports']
+const menuItems: NavId[] = ['overview', 'cashflow', 'installments', 'reports']
 
 const icons: Partial<Record<NavId, LucideIcon>> = {
   overview: LayoutDashboard,
   cashflow: ArrowLeftRight,
   reports: BarChart3,
+  installments: CalendarRange,
 }
 
 function navLabel(id: NavId): string {
   if (id === 'cashflow') return 'Planilha'
   if (id === 'reports') return 'Relatórios'
+  if (id === 'installments') return 'Parcelas'
   return NAV_LABELS[id]
 }
 
@@ -110,25 +114,18 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
         <ul>{menuItems.map(renderNavItem)}</ul>
 
         <div className="sidebar-months">
-          <label className="month-field">
+          <div className="month-field">
             <span className="nav-section">Mês</span>
-            <select
-              className="month-select"
-              aria-label="Mês da planilha"
+            <MonthListPicker
+              block
+              labelMode="month"
+              triggerClassName="month-select"
+              ariaLabel="Mês da planilha"
               value={state.activeSheetMonthKey}
-              onChange={(event) => pickMonth(event.target.value)}
-            >
-              {monthGroups.map((group) => (
-                <optgroup key={group.year} label={group.year}>
-                  {group.months.map((month) => (
-                    <option key={month.key} value={month.key}>
-                      {month.label.split('/')[0]}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </label>
+              months={monthGroups.flatMap((group) => group.months)}
+              onChange={pickMonth}
+            />
+          </div>
         </div>
       </nav>
 

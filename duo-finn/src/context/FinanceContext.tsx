@@ -431,6 +431,7 @@ export const NAV_LABELS: Record<NavId, string> = {
   overview: 'Visão geral',
   cashflow: 'Planilha do mês',
   reports: 'Relatórios',
+  installments: 'Parcelas',
   cards: 'Cartões',
   home: 'Nossa casa',
   reserve: 'Nossa reserva',
